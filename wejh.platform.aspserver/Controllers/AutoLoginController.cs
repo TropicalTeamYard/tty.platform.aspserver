@@ -42,12 +42,12 @@ namespace wejh.platform.aspserver.Controllers
             {
                 DataSet data = null;
                 int flag = -1;
-                if (SqlUtil.TryQuery(UserSql.GetQuerycommandMobileCredit(credit), out var dataSet1))
+                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandMobileCredit(credit), out var dataSet1))
                 {
                     data = dataSet1;
                     flag = 0;
                 }
-                if (SqlUtil.TryQuery(UserSql.GetQuerycommandPcCredit(credit), out var dataSet2))
+                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandPcCredit(credit), out var dataSet2))
                 {
                     data = dataSet2;
                     flag = 1;
@@ -71,7 +71,7 @@ namespace wejh.platform.aspserver.Controllers
                         {
                             userSql.mobile_credit = StringUtil.GetNewToken();
                             //更新数据库。
-                            SqlUtil.Execute(userSql.GetUpdatecommandMobile());
+                            MySqlUtil.Execute(userSql.GetUpdatecommandMobile());
 
                             return new JsonResult(new ResponceModel(200, "自动登录成功。", userSql.ToUserResultMobile()));
                         }
@@ -79,7 +79,7 @@ namespace wejh.platform.aspserver.Controllers
                         {
                             userSql.pc_credit = StringUtil.GetNewToken();
                             //更新数据库。
-                            SqlUtil.Execute(userSql.GetUpdateCommandPc());
+                            MySqlUtil.Execute(userSql.GetUpdateCommandPc());
 
                             return new JsonResult(new ResponceModel(200, "自动登录成功。", userSql.ToUserResultPc()));
                         }

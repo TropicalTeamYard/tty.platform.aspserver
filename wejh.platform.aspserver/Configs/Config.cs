@@ -13,7 +13,7 @@ namespace wejh.Configs
 
         public static string Conn => Configuration.GetConnectionString("wejhplatform");
 
-        public static string UserCreditTable => "dbo.usercredit";
+        public static string UserCreditTable => "usercredit";
 
         public static bool IsTest => true;
     }

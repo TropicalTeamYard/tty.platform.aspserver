@@ -4,6 +4,34 @@
 
 ### 数据库
 
+#### 配置
+
+##### mssql
+
+将文档中所有`MySqlUtil`换成`SqlUtil`。
+
+> 注意，因为`MySqlUtil`和`SqlUtil`依赖的类并不相同，所以创建了两个类，以适配数据库，但是两种数据库的语法是相同的。
+
+修改`appsettings.json`中的`ConnectionStrings`为
+```json
+{
+    "wejhplatform":"Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=wejhplatform;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
+}
+```
+
+##### mysql
+
+导入`NuGet`包`MySQL.Data`。
+
+将文档中所有`SqlUtil`换成`MySqlUtil`。
+
+修改`appsettings.json`中的`ConnectionStrings`为
+```json
+{
+    "wejhplatform":"server=localhost;userid=root;password=123456;database=wejhplatform;"
+}
+```
+
 #### contents
 
 ```json
@@ -46,6 +74,9 @@ use wejhplatform;
 ```
 
 #### create table
+
+mysql
+
 ```
 create table usercredit(
     id int not null AUTO_INCREMENT,

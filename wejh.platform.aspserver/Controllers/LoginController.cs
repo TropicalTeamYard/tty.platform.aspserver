@@ -56,14 +56,14 @@ namespace wejh.platform.aspserver.Controllers
                                 userSql.mobile_name = devicename;
                                 userSql.mobile_credit = StringUtil.GetNewToken();
 
-                                if (SqlUtil.Exists(userSql.GetQuerycommand()))
+                                if (MySqlUtil.Exists(userSql.GetQuerycommand()))
                                 {
-                                    SqlUtil.Execute(userSql.GetUpdatecommandUser());
-                                    SqlUtil.Execute(userSql.GetUpdatecommandMobile());
+                                    MySqlUtil.Execute(userSql.GetUpdatecommandUser());
+                                    MySqlUtil.Execute(userSql.GetUpdatecommandMobile());
                                 }
                                 else
                                 {
-                                    SqlUtil.Execute(userSql.GetAddcommand());
+                                    MySqlUtil.Execute(userSql.GetAddcommand());
                                 }
 
                                 return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile()));
@@ -73,14 +73,14 @@ namespace wejh.platform.aspserver.Controllers
                                 userSql.pc_name = devicename;
                                 userSql.pc_credit = StringUtil.GetNewToken();
 
-                                if (SqlUtil.Exists(userSql.GetQuerycommand()))
+                                if (MySqlUtil.Exists(userSql.GetQuerycommand()))
                                 {
-                                    SqlUtil.Execute(userSql.GetUpdatecommandUser());
-                                    SqlUtil.Execute(userSql.GetUpdateCommandPc());
+                                    MySqlUtil.Execute(userSql.GetUpdatecommandUser());
+                                    MySqlUtil.Execute(userSql.GetUpdateCommandPc());
                                 }
                                 else
                                 {
-                                    SqlUtil.Execute(userSql.GetAddcommand());
+                                    MySqlUtil.Execute(userSql.GetAddcommand());
                                 }
 
                                 return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultPc()));
