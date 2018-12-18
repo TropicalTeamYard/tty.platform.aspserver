@@ -40,16 +40,16 @@ namespace wejh.platform.aspserver.Controllers
             }
             else
             {
-                DataSet data = null;
+                DataTable data = null;
                 int flag = -1;
-                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandMobileCredit(credit), out var dataSet1))
+                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandMobileCredit(credit), out var dataTable1))
                 {
-                    data = dataSet1;
+                    data = dataTable1;
                     flag = 0;
                 }
-                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandPcCredit(credit), out var dataSet2))
+                if (MySqlUtil.TryQuery(UserSql.GetQuerycommandPcCredit(credit), out var dataTable2))
                 {
-                    data = dataSet2;
+                    data = dataTable2;
                     flag = 1;
                 }
 
@@ -60,7 +60,7 @@ namespace wejh.platform.aspserver.Controllers
                 else
                 {
                     //验证账户。
-                    UserSql userSql = UserSql.FromDataRow(data.Tables[0].Rows[0]);
+                    UserSql userSql = UserSql.FromDataRow(data.Rows[0]);
 
                     var result = Function.JhUserFunc.CheckJhUser(userSql.username, userSql.password);
 

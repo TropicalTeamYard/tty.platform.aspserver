@@ -60,14 +60,14 @@ use wejhplatform;
     "name": "usercredit",
     "table":{
         "id": "int not null AUTO_INCREMENT",
-        "username": "string not null",
+        "username": "text not null",
         "usertype": "int not null",
-        "password": "string not null",
-        "token": "string",
-        "mobile_name":"string",
-        "mobile_credit":"string",
-        "pc_name":"string",
-        "pc_credit":"string"
+        "password": "text not null",
+        "token": "text",
+        "mobile_name":"text",
+        "mobile_credit":"text",
+        "pc_name":"text",
+        "pc_credit":"text"
     },
     "primarykey":"id"
 }
@@ -91,3 +91,47 @@ create table usercredit(
     PRIMARY KEY (id)
 );
 ```
+
+### 用户信息模块
+
+#### models
+
+```json
+{
+    "name":"userinfo",
+    "table":
+    {
+        "id":"int not null AUTO_INCREMENT",
+        //credit
+        "username":"text not null",
+        //pwbinds
+        "pwbind_lib":"text not null",
+        "pwbind_card":"text not null",
+        "pwbind_ycedu":"text not null",
+        "pwbind_zjedu":"text not null",
+        //infos
+        "email":"text",
+        "phone":"text",
+    }
+}
+```
+
+#### create table
+
+mysql
+
+```
+create table userinfo(
+    id int not null AUTO_INCREMENT,
+    username text not null,
+    pwbind_lib text not null,
+    pwbind_card text not null,
+    pwbind_ycedu text not null,
+    pwbind_zfedu text not null,
+    email text not null,
+    phone text not null
+);
+```
+
+
+

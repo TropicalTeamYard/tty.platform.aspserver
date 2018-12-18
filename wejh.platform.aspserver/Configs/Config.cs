@@ -10,11 +10,8 @@ namespace wejh.Configs
     public static class Config
     {
         public static IConfiguration Configuration { get; set; }
-
         public static string Conn => Configuration.GetConnectionString("wejhplatform");
-
         public static string UserCreditTable => "usercredit";
-
         public static bool IsTest => true;
     }
 }

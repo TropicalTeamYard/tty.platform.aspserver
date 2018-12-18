@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
@@ -78,6 +80,14 @@ namespace wejh.Util
 
             return Unicode2String(new StreamReader(response.GetResponseStream()).ReadToEnd());
         }
+        //public static string GetToken(this Controller controller)
+        //{
+        //    if (controller.Request.Headers.TryGetValue("Authorization", out StringValues vs))
+        //    {
+        //        return vs.ToString();
+        //    };
+        //    return null;
+        //}
     }
 
 }

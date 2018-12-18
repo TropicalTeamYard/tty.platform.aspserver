@@ -21,6 +21,7 @@ namespace wejh.platform.aspserver.Controllers
         [HttpGet]
         public JsonResult Get(string username, string password, string devicetype, string devicename)
         {
+            
             if (Config.IsTest)
             {
                 return Post(username, password, devicetype, devicename);

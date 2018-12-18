@@ -128,7 +128,7 @@ namespace wejh.Util
                 conn.Open();
             }
         }
-        public static DataSet Query(string command)
+        public static DataTable Query(string command)
         {
             try
             {
@@ -138,7 +138,7 @@ namespace wejh.Util
                 MySqlDataAdapter sqlDataAdapter = new MySqlDataAdapter(command, conn);
                 sqlDataAdapter.Fill(dataSet);
 
-                return dataSet;
+                return dataSet.Tables[0];
             }
             catch (Exception)
             {
@@ -150,7 +150,7 @@ namespace wejh.Util
                 Close();
             }
         }
-        public static bool TryQuery(string command, out DataSet set)
+        public static bool TryQuery(string command, out DataTable table)
         {
             try
             {
@@ -160,8 +160,8 @@ namespace wejh.Util
                 MySqlDataAdapter sqlDataAdapter = new MySqlDataAdapter(command, conn);
                 sqlDataAdapter.Fill(dataSet);
 
-                set = dataSet;
-                return dataSet.Tables[0].Rows.Count != 0;
+                table = dataSet.Tables[0];
+                return table.Rows.Count != 0;
             }
             catch (Exception)
             {
