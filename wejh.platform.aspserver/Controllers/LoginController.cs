@@ -54,20 +54,29 @@ namespace wejh.platform.aspserver.Controllers
                             UserSql userSql = UserSql.Combine((JhUserModel)result.data, password);
                             if (devicetype == "mobile")
                             {
-                                userSql.mobile_name = devicename;
-                                userSql.mobile_credit = StringUtil.GetNewToken();
-
-                                if (MySqlUtil.Exists(userSql.GetQuerycommand()))
+                                try
                                 {
-                                    MySqlUtil.Execute(userSql.GetUpdatecommandUser());
-                                    MySqlUtil.Execute(userSql.GetUpdatecommandMobile());
+                                    userSql.mobile_name = devicename;
+                                    userSql.mobile_credit = StringUtil.GetNewToken();
+
+                                    if (MySqlUtil.Exists(userSql.GetQuerycommand()))
+                                    {
+                                        MySqlUtil.Execute(userSql.GetUpdatecommandUser());
+                                        MySqlUtil.Execute(userSql.GetUpdatecommandMobile());
+                                    }
+                                    else
+                                    {
+                                        MySqlUtil.Execute(userSql.GetAddcommand());
+                                    }
+
+                                    return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile()));
                                 }
-                                else
+                                catch (Exception ex)
                                 {
-                                    MySqlUtil.Execute(userSql.GetAddcommand());
+                                    return new JsonResult(new ResponceModel(500, ex.Message + " " + ex.StackTrace));
+                                    
                                 }
 
-                                return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile()));
                             }
                             else
                             {
