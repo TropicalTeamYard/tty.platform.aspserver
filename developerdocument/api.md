@@ -93,3 +93,28 @@ ${root}/api/autologin
     }
 }
 ```
+
+#### 绑定密码
+
+##### 地址
+
+```
+${root}/api/pwbind
+```
+
+##### 参数
+```json
+{
+    "credit":"$credit",
+    "bindname":"$bindname",
+    "password":"$password",
+}
+```
+
+```json
+{
+    "code":200,
+    "msg":"$$$绑定成功"
+}
+```
+

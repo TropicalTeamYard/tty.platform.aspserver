@@ -38,7 +38,7 @@ namespace wejh.Util
         public static string get(string url, string paramters, string token = "")
         {
             string urlName = url + "?" + paramters;
-            Url realUrl = new Url(urlName);
+            //ToolUtil realUrl = new ToolUtil(urlName);
 
             var request = (HttpWebRequest)WebRequest.Create(urlName);
 

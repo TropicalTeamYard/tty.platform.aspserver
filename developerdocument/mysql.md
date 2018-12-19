@@ -124,12 +124,12 @@ mysql
 create table userinfo(
     id int not null AUTO_INCREMENT,
     username text not null,
-    pwbind_lib text not null,
-    pwbind_card text not null,
-    pwbind_ycedu text not null,
-    pwbind_zfedu text not null,
-    email text not null,
-    phone text not null
+    pwbind_lib text,
+    pwbind_card text,
+    pwbind_ycedu text,
+    pwbind_zfedu text,
+    email text,
+    phone text
 );
 ```
 

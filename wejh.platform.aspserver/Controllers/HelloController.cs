@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace wejh.Controllers
 {
     [Produces("application/json")]
-    [Route("hello")]
+    [Route("")]
     public class HelloController : Controller
     {
         [HttpGet]
