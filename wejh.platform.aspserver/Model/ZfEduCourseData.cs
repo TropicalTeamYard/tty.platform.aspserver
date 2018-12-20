@@ -8,10 +8,6 @@ namespace wejh.Model
     public class ZfEduCourseData
     {
         /// <summary>
-        /// 课程id
-        /// </summary>
-        public string cd_id { get; set; } 
-        /// <summary>
         /// 上课教室
         /// </summary>
         public string cdmc { get; set; } 

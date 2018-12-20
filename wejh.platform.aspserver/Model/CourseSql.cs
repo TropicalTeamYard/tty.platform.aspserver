@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using wejh.Configs;
+using wejh.Util;
 
 namespace wejh.Model
 {
@@ -14,7 +15,6 @@ namespace wejh.Model
 
         public CourseSql(ZfEduCourseData data, int year, int term)
         {
-            courseid = data.cd_id;
             this.year = year;
             this.term = term;
             name = data.kcmc;
@@ -28,9 +28,12 @@ namespace wejh.Model
             timerange = data.jcor;
             classscore = data.classscore;
             classhour = data.classhuor;
+
+            courseid = ToolUtil.MD5Encrypt32( $"{year}*{term}*{name}*{location}*{weekrange}*{dayofweek}*{timerange}");
         }
 
         public int id { get; set; }
+        //课程的唯一标识符，主要用于查询。
         public string courseid { get; set; }
         public int year { get; set; }
         /// <summary>
