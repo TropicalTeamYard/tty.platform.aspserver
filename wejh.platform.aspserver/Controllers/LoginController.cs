@@ -21,15 +21,12 @@ namespace wejh.platform.aspserver.Controllers
         [HttpGet]
         public JsonResult Get(string username, string password, string devicetype, string devicename)
         {
-            
-            if (Config.IsTest)
-            {
-                return Post(username, password, devicetype, devicename);
-            }
-            else
-            {
-                return new JsonResult(new ResponceModel(405, "Get方法已禁止"));
-            }
+#if DEBUG
+            return Post(username, password, devicetype, devicename);
+#else
+            return new JsonResult( ResponceModel.GetInstanceBaned());
+#endif
+
         }
 
         [HttpPost]
@@ -38,77 +35,75 @@ namespace wejh.platform.aspserver.Controllers
             //api访问失败
             if (username == null || password == null || devicetype == null || devicename == null)
             {
-                return new JsonResult(new ResponceModel(400, "无效的访问。"));
+                return ResponceModel.GetInstanceInvalid();
             }
             else
             {
-                if (devicetype == "pc" || devicetype == "mobile")
+                try
                 {
-                    if (username != "" && password != "")
+                    if (devicetype == "pc" || devicetype == "mobile")
                     {
-                        //向精弘用户中心服务器验证登录
-                        var result = JhUserFunc.CheckJhUser(username, password);
-                        //验证成功
-                        if (result.code == 200)
+                        if (username != "" && password != "")
                         {
-                            UserSql userSql = UserSql.Combine((JhUserModel)result.data, password);
-                            if (devicetype == "mobile")
+                            //向精弘用户中心服务器验证登录
+                            var result = JhUserFunc.CheckJhUser(username, password);
+                            //验证成功
+                            if (result.code == 200)
                             {
-                                try
+                                UserSql userSql = new UserSql((JhUserAPIData)result.data, password);
+                                if (devicetype == "mobile")
                                 {
                                     userSql.mobile_name = devicename;
                                     userSql.mobile_credit = StringUtil.GetNewToken();
 
-                                    if (MySqlUtil.Exists(userSql.GetQuerycommand()))
+                                    if (MySqlUtil.Exists(userSql))
                                     {
                                         MySqlUtil.Execute(userSql.GetUpdatecommandUser());
                                         MySqlUtil.Execute(userSql.GetUpdatecommandMobile());
                                     }
                                     else
                                     {
-                                        MySqlUtil.Execute(userSql.GetAddcommand());
+                                        MySqlUtil.Add(userSql);
                                     }
 
-                                    return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile()));
-                                }
-                                catch (Exception ex)
-                                {
-                                    return new JsonResult(new ResponceModel(500, ex.Message + " " + ex.StackTrace));
-                                    
-                                }
-
-                            }
-                            else
-                            {
-                                userSql.pc_name = devicename;
-                                userSql.pc_credit = StringUtil.GetNewToken();
-
-                                if (MySqlUtil.Exists(userSql.GetQuerycommand()))
-                                {
-                                    MySqlUtil.Execute(userSql.GetUpdatecommandUser());
-                                    MySqlUtil.Execute(userSql.GetUpdateCommandPc());
+                                    return new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile());
                                 }
                                 else
                                 {
-                                    MySqlUtil.Execute(userSql.GetAddcommand());
-                                }
+                                    userSql.pc_name = devicename;
+                                    userSql.pc_credit = StringUtil.GetNewToken();
 
-                                return new JsonResult(new ResponceModel(result.code, result.msg, userSql.ToUserResultPc()));
+                                    if (MySqlUtil.Exists(userSql))
+                                    {
+                                        MySqlUtil.Execute(userSql.GetUpdatecommandUser());
+                                        MySqlUtil.Execute(userSql.GetUpdateCommandPc());
+                                    }
+                                    else
+                                    {
+                                        MySqlUtil.Add(userSql);
+                                    }
+
+                                    return new ResponceModel(result.code, result.msg, userSql.ToUserResultPc());
+                                }
+                            }
+                            else
+                            {
+                                return new ResponceModel(result.code, result.msg);
                             }
                         }
                         else
                         {
-                            return new JsonResult(new ResponceModel(result.code, result.msg));
+                            return new ResponceModel(403, "用户名或密码不能为空。");
                         }
                     }
                     else
                     {
-                        return new JsonResult(new ResponceModel(403, "用户名或密码不能为空。"));
+                        return new ResponceModel(403, "设备类型不符合。");
                     }
                 }
-                else
+                catch (Exception ex)
                 {
-                    return new JsonResult(new ResponceModel(403, "设备类型不符合。"));
+                    return ResponceModel.GetInstanceError(ex);
                 }
             }
         }

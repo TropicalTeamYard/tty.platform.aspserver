@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using wejh.Configs;
 
 namespace wejh.Util
 {
@@ -35,7 +36,7 @@ namespace wejh.Util
                          source, x => string.Empty + Convert.ToChar(Convert.ToUInt16(x.Result("$1"), 16)));
         }
 
-        public static string get(string url, string paramters, string token = "")
+        private static string get(string url, string paramters, string token = "")
         {
             string urlName = url + "?" + paramters;
             //ToolUtil realUrl = new ToolUtil(urlName);
@@ -54,6 +55,9 @@ namespace wejh.Util
 
             return Unicode2String(responseString);
         }
+
+        public static string get(APIKey key, string paramters, string token = "") => get(API.GetAPI(key), paramters, token);
+
         public static string post(string url, string postdata, string token = "")
         {
             var request = (HttpWebRequest)WebRequest.Create(url);

@@ -111,6 +111,29 @@
 }
 ```
 
+#### 获取时间
+
+##### 地址
+
+https://server.wejh.imcr.me/api/time
+
+成功
+
+```json
+{
+	"errcode": 1,
+	"errmsg": "获取时间成功",
+	"data": {
+		"term": "2018\/2019(1)",
+		"month": "12",
+		"week": 13,
+		"day": 4,
+		"is_begin": true
+	},
+	"redirect": null
+}
+```
+
 ### 正方教务系统
 
 #### 查询成绩**GET**
@@ -123,10 +146,77 @@ http://api.jh.zjut.edu.cn/student/classZf.php
 
 ```json
 {
-    "username":"text", //学号
-    "password":"text", //密码
-    "year":"int", //学年(2017)
-    "term":"int", //
+    "username":"$username", //学号
+    "password":"$password", //密码
+    "year":"$year", //学年(2017)
+    "term":"$term", //学期(3为上学期，12为下学期，16为短学期)
 }
 ```
 
+失败
+
+```json
+{
+	"status": "error",
+	"msg": "参数错误"
+}
+```
+
+```json
+{
+	"status": "error",
+	"msg": "用户名或密码错误"
+}
+```
+
+成功
+
+```json
+{
+	"status": "success",
+	"msg": [{
+		"cd_id": "19832", //课程id
+		"cdmc": "教404", //上课教室(场地名称？)
+		"jc": "1-2节",  
+		"jcor": "1-2", //第几节上课
+		"jcs": "1-2",
+		"jgh_id": "1166",
+		"jgpxzd": "1",
+		"jxb_id": "6CDD0B1E70ED68EBE053A11310AC0090", //教学班id
+		"jxbmc": "线性代数-0010", //教学班名称
+		"kch_id": "101", 
+		"kcmc": "线性代数", //课程名称
+		"khfsmc": "考查", //考核方式名称
+		"listnav": "false",
+		"localeKey": "zh_CN",
+		"oldjc": "3",
+		"oldzc": "65535",
+		"pageable": true,
+		"pkbj": "1",
+		"rangeable": true,
+		"rsdzjs": 0,
+		"sxbj": "1",
+		"totalResult": "0",
+		"xm": "金建国", //教师姓名
+		"xnm": "2018", //学年名
+		"xqdm": "0",
+		"xqh_id": "01",
+		"xqj": "1",
+		"xqjmc": "星期一",//星期几
+		"xqm": "3",
+		"xqmc": "朝晖校区",//校区名称
+		"xsdm": "01",
+		"xslxbj": "◆",
+		"zcd": "1-16周",
+		"zcmc": "副教授",
+		"zyfxmc": "无方向",
+        //这些字段是后来开发者为了方便理解添加的字段
+		"name": "线性代数:金建国", //课程名称
+		"collage": "", //开课学院 *谁把college拼错了?
+		"classinfo": "1-16周:星期1(1-2) 教404;", //课程信息
+		"classtype": "考查", //课程类型"未安排"/"考查"/"考试"
+		"classscore": 2,//学分
+		"classhuor": 32//学时 *谁把hour拼错了?
+    }]
+}
+```

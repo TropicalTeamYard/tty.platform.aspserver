@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace wejh.Model
 {
-    public class JhUserModel
+    public class JhUserAPIData
     {
         public string pid { get; set; }
         public string email { get; set; }

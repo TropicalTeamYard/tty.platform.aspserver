@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 
 namespace wejh.Model
 {
-    public class RequestModel
+    public interface ISqlQueryable
     {
-        public string method;
+        string GetAddcommand();
+        string GetQuerycommand();
     }
 }

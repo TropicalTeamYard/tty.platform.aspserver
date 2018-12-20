@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,5 +17,23 @@ namespace wejh.Model
         public int code { get; set; }
         public string msg { get; set; }
         public object data { get; set; }
+
+        public static ResponceModel GetInstanceBaned()
+        {
+            return new ResponceModel(405, "Get方法已禁止。");
+        }
+        public static ResponceModel GetInstanceInvalid()
+        {
+            return new ResponceModel(400, "无效的访问。");
+        }
+        public static ResponceModel GetInstanceError(Exception ex)
+        {
+            return new ResponceModel(500, ex.Message + " " + ex.StackTrace);
+        }
+
+        public static implicit operator JsonResult(ResponceModel obj)
+        {
+            return new JsonResult(obj);
+        }
     }
 }

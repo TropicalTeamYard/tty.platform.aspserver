@@ -108,10 +108,11 @@ create table usercredit(
         "pwbind_lib":"text not null",
         "pwbind_card":"text not null",
         "pwbind_ycedu":"text not null",
-        "pwbind_zjedu":"text not null",
+        "pwbind_zfedu":"text not null",
         //infos
         "email":"text",
         "phone":"text",
+        "linkedcourse":"text", //链接键,用|分割. $based list<string>
     }
 }
 ```
@@ -129,9 +130,59 @@ create table userinfo(
     pwbind_ycedu text,
     pwbind_zfedu text,
     email text,
-    phone text
+    phone text,
+    linkedcourse text,
+    PRIMARY KEY (id)
 );
 ```
 
+### 教务系统模块
 
+#### models
+```json
+{
+    "name":"course",
+    "table":
+    {
+        "id":"int not null AUTO_INCREMENT",
+        //三大查询标识
+        "courseid":"text not null", //课程的id
+        "year":"int not null", //上课学年
+        "term":"int not null", //上课学期(3为上学期，12为下学期，16为下学期)
+        "name":"text",//课程名称
+        "college":"text", //开课学院
+        "type":"text",
+        "teacher": "text",//教师名称
+        "campus":"text", //校区名称
+        "location":"text", //地点
+        "weekrange":"text",//上课周数{1-16}表示第1~16周
+        "dayofweek":"text", //星期几{0=Sunday,1=Monday...}
+        "timerange":"text",//时间{1-3}表示第1~3节
+        "classscore":"int", //学分
+        "classhour":"int" //学时
+    }
+}
+```
 
+##### create table
+
+```
+create table course(
+    id int not null AUTO_INCREMENT,
+    courseid text not null,
+    year int not null,
+    term int not null,
+    name text,
+    college text,
+    type text,
+    teacher text,
+    campus text,
+    location text,
+    weekrange text,
+    dayofweek text,
+    timerange text,
+    classscore int,
+    classhour int,
+    PRIMARY KEY (id)
+);
+```

@@ -5,10 +5,11 @@ using System.Threading.Tasks;
 
 namespace wejh.Configs
 {
-    public static class API
+    public class API
     {
         public static Dictionary<APIKey, string> apiMap = new Dictionary<APIKey, string>() {
-            { APIKey.JhUser,"http://user.jh.zjut.edu.cn/api.php"}
+            { APIKey.JhUser,"http://user.jh.zjut.edu.cn/api.php"},
+            { APIKey.ZjCourse,"http://api.jh.zjut.edu.cn/student/classZf.php" }
         };
 
         public static string GetAPI(APIKey key) => apiMap[key];
@@ -17,5 +18,10 @@ namespace wejh.Configs
     public enum APIKey
     {
         JhUser,
+        ZjCourse,
+
+
     }
+
+    
 }

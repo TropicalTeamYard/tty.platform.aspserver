@@ -6,113 +6,114 @@ using System.Linq;
 using System.Threading.Tasks;
 using wejh.Configs;
 using MySql.Data.MySqlClient;
+using wejh.Model;
 
 namespace wejh.Util
 {
-    public static class SqlUtil
-    {
-        private static SqlConnection conn = null;
-        private static void Open()
-        {
-            conn = new SqlConnection
-            {
-                ConnectionString = Config.Conn
-            };
-            if (conn.State == ConnectionState.Closed)
-            {
-                conn.Open();
-            }
-        }
-        public static DataSet Query(string command)
-        {
-            try
-            {
-                Open();
+    //public static class SqlUtil
+    //{
+    //    private static SqlConnection conn = null;
+    //    private static void Open()
+    //    {
+    //        conn = new SqlConnection
+    //        {
+    //            ConnectionString = Config.Conn
+    //        };
+    //        if (conn.State == ConnectionState.Closed)
+    //        {
+    //            conn.Open();
+    //        }
+    //    }
+    //    public static DataSet Query(string command)
+    //    {
+    //        try
+    //        {
+    //            Open();
 
-                DataSet dataSet = new DataSet();
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
-                sqlDataAdapter.Fill(dataSet);
+    //            DataSet dataSet = new DataSet();
+    //            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
+    //            sqlDataAdapter.Fill(dataSet);
 
-                return dataSet;
-            }
-            catch (Exception)
-            {
+    //            return dataSet;
+    //        }
+    //        catch (Exception)
+    //        {
 
-                throw;
-            }
-            finally
-            {
-                Close();
-            }
-        }
-        public static bool TryQuery(string command,out DataSet set)
-        {
-            try
-            {
-                Open();
+    //            throw;
+    //        }
+    //        finally
+    //        {
+    //            Close();
+    //        }
+    //    }
+    //    public static bool TryQuery(string command,out DataSet set)
+    //    {
+    //        try
+    //        {
+    //            Open();
 
-                DataSet dataSet = new DataSet();
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
-                sqlDataAdapter.Fill(dataSet);
+    //            DataSet dataSet = new DataSet();
+    //            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
+    //            sqlDataAdapter.Fill(dataSet);
 
-                set = dataSet;
-                return dataSet.Tables[0].Rows.Count !=0;
-            }
-            catch (Exception)
-            {
+    //            set = dataSet;
+    //            return dataSet.Tables[0].Rows.Count !=0;
+    //        }
+    //        catch (Exception)
+    //        {
 
-                throw;
-            }
-            finally
-            {
-                Close();
-            }
-        }
-        public static bool Exists(string command)
-        {
-            try
-            {
-                Open();
+    //            throw;
+    //        }
+    //        finally
+    //        {
+    //            Close();
+    //        }
+    //    }
+    //    public static bool Exists(string command)
+    //    {
+    //        try
+    //        {
+    //            Open();
 
-                DataSet dataSet = new DataSet();
-                SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
-                sqlDataAdapter.Fill(dataSet);
+    //            DataSet dataSet = new DataSet();
+    //            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(command, conn);
+    //            sqlDataAdapter.Fill(dataSet);
 
-                return dataSet.Tables[0].Rows.Count != 0;
-            }
-            catch (Exception)
-            {
+    //            return dataSet.Tables[0].Rows.Count != 0;
+    //        }
+    //        catch (Exception)
+    //        {
 
-                throw;
-            }
-            finally
-            {
-                Close();
-            }
-        }
-        public static void Execute(string command)
-        {
-            try
-            {
-                Open();
-                var cmd = new SqlCommand(command, conn);
-                cmd.ExecuteNonQuery();
-            }
-            catch (Exception)
-            {
+    //            throw;
+    //        }
+    //        finally
+    //        {
+    //            Close();
+    //        }
+    //    }
+    //    public static void Execute(string command)
+    //    {
+    //        try
+    //        {
+    //            Open();
+    //            var cmd = new SqlCommand(command, conn);
+    //            cmd.ExecuteNonQuery();
+    //        }
+    //        catch (Exception)
+    //        {
 
-                throw;
-            }
-            finally
-            {
-                Close();
-            }
-        }
-        private static void Close()
-        {
-            conn.Close();
-        }
-    }
+    //            throw;
+    //        }
+    //        finally
+    //        {
+    //            Close();
+    //        }
+    //    }
+    //    private static void Close()
+    //    {
+    //        conn.Close();
+    //    }
+    //} 
 
     public static class MySqlUtil
     {
@@ -213,6 +214,16 @@ namespace wejh.Util
                 Close();
             }
         }
+
+        public static bool TryQuery(ISqlQueryable obj, out DataTable table)
+        {
+            bool result = TryQuery(obj.GetQuerycommand(), out DataTable table2);
+            table = table2;
+            return result;
+        }
+        public static void Add(ISqlQueryable obj) => Execute(obj.GetAddcommand());
+        public static bool Exists(ISqlQueryable obj) => Exists(obj.GetQuerycommand());
+
         private static void Close()
         {
             conn.Close();

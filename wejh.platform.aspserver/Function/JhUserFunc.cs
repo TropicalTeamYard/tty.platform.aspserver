@@ -12,16 +12,22 @@ namespace wejh.Function
 {
     public static class JhUserFunc
     {
+        /// <summary>
+        /// 在精弘用户中心验证账号 注释:typeof(<see cref="ResponceModel.data"/>)=<see cref="JhUserAPIData"/>
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         public static ResponceModel CheckJhUser(string username,string password)
         {
-            var request = JhUserRequestModel.getInstanceLogin(new UserModel(username, password));
-            string result = HttpUtil.get(API.GetAPI(APIKey.JhUser), request.ToParameters());
+            var request = new JhUserRequestModel("passport","login",username,password);
+            string result = HttpUtil.get(APIKey.JhUser, request.ToParameters());
 
             JObject jObject = (JObject)JsonConvert.DeserializeObject(result);
 
             if (jObject["state"].ToString() == "success")
             {
-                JhUserModel jhUser = JsonConvert.DeserializeObject<JhUserModel>(jObject["data"].ToString());
+                JhUserAPIData jhUser = (JhUserAPIData)JsonConvert.DeserializeObject(jObject["data"].ToString());
 
                 return new ResponceModel(200, "登录成功", jhUser);
             }

@@ -7,7 +7,7 @@ using wejh.Configs;
 
 namespace wejh.Model
 {
-    public class UserSql:UserModel
+    public class UserSql:UserModel,ISqlQueryable
     {
         public UserSql()
         {
@@ -18,6 +18,9 @@ namespace wejh.Model
             this.usertype = usertype;
             this.password = password;
         }
+        public UserSql(JhUserAPIData user, string password):this(user.pid,user.type,password)
+        {
+        }
 
         public int id { get; set; }
         public int usertype { get; set; }
@@ -26,7 +29,7 @@ namespace wejh.Model
         public string pc_name { get; set;}
         public string pc_credit { get; set; }
 
-        public string GetAddcommand()
+        string ISqlQueryable.GetAddcommand()
         {
 
             return $"insert into {Config.UserCreditTable}(username,usertype,password,mobile_name,mobile_credit,pc_name,pc_credit) values('{username}',{usertype},'{password}','{mobile_name}','{mobile_credit}','{pc_name}','{pc_credit}')";
@@ -51,7 +54,7 @@ namespace wejh.Model
         {
             return $"update {Config.UserCreditTable} set pc_name='{pc_name}',pc_credit='{pc_credit}' where username like '{username}'";
         }
-        public string GetQuerycommand()
+        string ISqlQueryable.GetQuerycommand()
         {
             return $"select * from {Config.UserCreditTable} where username like '{username}'";
         }
@@ -66,21 +69,21 @@ namespace wejh.Model
             return $"select * from {Config.UserCreditTable} where pc_credit like '{credit}'";
         }
 
-        public static UserSql FromDataRow(DataRow table)
+        public static UserSql FromDataRow(DataRow row)
         {
             return new UserSql()
             {
-                id = (int)table[nameof(id)],
-                username = (string)table[nameof(username)],
-                usertype = (int)table[nameof(usertype)],
-                password = (string)table[nameof(password)],
-                mobile_name = (string)table[nameof(mobile_name)],
-                mobile_credit = (string)table[nameof(mobile_credit)],
-                pc_name = (string)table[nameof(pc_name)],
-                pc_credit = (string)table[nameof(pc_credit)],
+                id = (int)row[nameof(id)],
+                username = (string)row[nameof(username)],
+                usertype = (int)row[nameof(usertype)],
+                password = (string)row[nameof(password)],
+                mobile_name = (string)row[nameof(mobile_name)],
+                mobile_credit = (string)row[nameof(mobile_credit)],
+                pc_name = (string)row[nameof(pc_name)],
+                pc_credit = (string)row[nameof(pc_credit)],
             };
         }
-        public static UserSql Combine(JhUserModel user, string password)
+        public static UserSql Combine(JhUserAPIData user, string password)
         {
             return new UserSql(user.pid, user.type, password);
         }
@@ -93,6 +96,5 @@ namespace wejh.Model
         {
             return new UserResult(username, usertype, pc_credit, pc_name);
         }
-
     }
 }

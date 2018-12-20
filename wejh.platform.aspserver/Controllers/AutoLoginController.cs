@@ -21,20 +21,17 @@ namespace wejh.platform.aspserver.Controllers
         [HttpGet]
         public JsonResult Get(string credit)
         {
-            if (Config.IsTest)
-            {
-                return Post(credit);
-            }
-            else
-            {
-                return new JsonResult(new ResponceModel(405, "Get方法已禁止"));
-            }
+#if DEBUG
+            return Post(credit);
+#else
+            return ResponceModel.GetInstanceBaned();
+#endif
         }
 
         [HttpPost]
         public JsonResult Post(string credit)
         {
-            return new JsonResult(ToolUtil.Autologin(credit));
+            return ToolUtil.AutoLogin(credit);
         }
     }
 }
