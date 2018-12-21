@@ -48,7 +48,7 @@ namespace wejh.Model
         }
         string IMySqlQueryable.GetAddcommand()
         {
-            return $"insert into {Config.UserInfoTable} (username,pwbind_lib,pwbind_card,pwbind_ycedu,pwbind_zfedu,email,phone,linkedcourse) values ('{username}','{pwbind_lib}','{pwbind_card}','{pwbind_ycedu}','{pwbind_zfedu}','{email}','{phone}','{string.Join('|', linkedcourse)}')";
+            return $"insert into {Config.UserInfoTable} (username,pwbind_lib,pwbind_card,pwbind_ycedu,pwbind_zfedu,email,phone,linkedcourse) values ('{username}','{pwbind_lib}','{pwbind_card}','{pwbind_ycedu}','{pwbind_zfedu}','{email}','{phone}','{((linkedcourse == null || linkedcourse.Count == 0)?"":string.Join('|', linkedcourse))}')";
         }
         string IMySqlQueryable.GetQuerycommand()
         {
@@ -62,7 +62,7 @@ namespace wejh.Model
         }
         public void UpdateLinkedcourse()
         {
-            var cmd = $"update {Config.UserInfoTable} set linkedcourse='{string.Join('|', linkedcourse)}' where username like '{username}'";
+            var cmd = $"update {Config.UserInfoTable} set linkedcourse='{((linkedcourse == null || linkedcourse.Count == 0) ? "" : string.Join('|', linkedcourse))}' where username like '{username}'";
             MySqlUtil.Execute(cmd);
         }
     }
