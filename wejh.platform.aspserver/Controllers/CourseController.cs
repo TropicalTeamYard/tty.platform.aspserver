@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -11,12 +10,9 @@ using wejh.Util;
 
 namespace wejh.platform.aspserver.Controllers
 {
-    /// <summary>
-    /// 自动登录的API逻辑
-    /// </summary>
     [Produces("application/json")]
-    [Route("api/autoLogin")]
-    public class AutoLoginController : Controller
+    [Route("api/course")]
+    public class CourseController : Controller
     {
         [HttpGet]
         public JsonResult Get(string credit)
@@ -28,10 +24,17 @@ namespace wejh.platform.aspserver.Controllers
 #endif
         }
 
-        [HttpPost]
         public JsonResult Post(string credit)
         {
-            return UserCredit.AutoLogin(credit);
+            if (credit == null)
+            {
+                return ResponceModel.GetInstanceInvalid();
+            }
+            else
+            {
+                return Course.GetCourse(credit);
+            }
         }
+
     }
 }

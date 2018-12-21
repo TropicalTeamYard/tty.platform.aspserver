@@ -4,18 +4,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using wejh.Configs;
+using wejh.Model;
 
-namespace wejh.Controllers
+namespace wejh.platform.aspserver.Controllers
 {
     [Produces("application/json")]
-    [Route("")]
-    public class HelloController : Controller
+    public class TimeController : Controller
     {
         [HttpGet]
-        public string Get()
+        [Route("api/time")]
+        public JsonResult Get()
         {
-            return "welcome to hello world!";
+            return TermTime.GetResponce();
         }
-
     }
 }
