@@ -186,3 +186,7 @@ create table course(
     PRIMARY KEY (id)
 );
 ```
+
+courseid生成方式
+
+year + term + name + location + weekrange + dayofweek + timerange 取hashcode

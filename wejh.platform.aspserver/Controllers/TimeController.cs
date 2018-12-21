@@ -10,20 +10,13 @@ using wejh.Model;
 namespace wejh.platform.aspserver.Controllers
 {
     [Produces("application/json")]
-    [Route("api/time")]
     public class TimeController : Controller
     {
         [HttpGet]
+        [Route("api/time")]
         public JsonResult Get()
         {
-            try
-            {
-                return new ResponceModel(200, "获取时间成功", Config.GetTermTime());
-            }
-            catch (Exception ex)
-            {
-                return ResponceModel.GetInstanceError(ex);
-            }
+            return TermTime.GetResponce();
         }
     }
 }

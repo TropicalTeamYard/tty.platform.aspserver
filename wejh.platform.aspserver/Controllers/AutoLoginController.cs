@@ -31,7 +31,7 @@ namespace wejh.platform.aspserver.Controllers
         [HttpPost]
         public JsonResult Post(string credit)
         {
-            return ToolUtil.AutoLogin(credit);
+            return UserCredit.AutoLogin(credit);
         }
     }
 }

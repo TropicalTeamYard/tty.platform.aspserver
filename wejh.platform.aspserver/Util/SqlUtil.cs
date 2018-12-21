@@ -118,7 +118,7 @@ namespace wejh.Util
     public static class MySqlUtil
     {
         private static MySqlConnection conn = null;
-        public static void Open()
+        private static void Open()
         {
             conn = new MySqlConnection
             {
@@ -129,7 +129,7 @@ namespace wejh.Util
                 conn.Open();
             }
         }
-        public static DataTable Query(string command)
+        private static DataTable Query(string command)
         {
             try
             {
@@ -151,6 +151,11 @@ namespace wejh.Util
                 Close();
             }
         }
+        private static void Close()
+        {
+            conn.Close();
+        }
+
         public static bool TryQuery(string command, out DataTable table)
         {
             try
@@ -174,7 +179,7 @@ namespace wejh.Util
                 Close();
             }
         }
-        public static bool Exists(string command)
+        private static bool Exists(string command)
         {
             try
             {
@@ -215,18 +220,13 @@ namespace wejh.Util
             }
         }
 
-        public static bool TryQuery(ISqlQueryable obj, out DataTable table)
+        public static bool TryQuery(IMySqlQueryable obj, out DataTable table)
         {
             bool result = TryQuery(obj.GetQuerycommand(), out DataTable table2);
             table = table2;
             return result;
         }
-        public static void Add(ISqlQueryable obj) => Execute(obj.GetAddcommand());
-        public static bool Exists(ISqlQueryable obj) => Exists(obj.GetQuerycommand());
-
-        private static void Close()
-        {
-            conn.Close();
-        }
+        public static void Add(IMySqlQueryable obj) => Execute(obj.GetAddcommand());
+        public static bool Exists(IMySqlQueryable obj) => Exists(obj.GetQuerycommand());
     }
 }

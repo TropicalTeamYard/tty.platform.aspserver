@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
+using wejh.Model;
+using wejh.Util;
 
 namespace wejh
 {
@@ -24,5 +27,21 @@ namespace wejh
             }
             return result;
         }
+
+        public static void Add(this IMySqlQueryable obj) => MySqlUtil.Add(obj);
+        public static bool TryQuery(this IMySqlQueryable obj)
+        {
+            if (MySqlUtil.TryQuery(obj, out DataTable table))
+            {
+                var row = table.Rows[0];
+                obj.Set(row);
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public static bool Exists(this IMySqlQueryable obj) => MySqlUtil.Exists(obj);
     }
 }
