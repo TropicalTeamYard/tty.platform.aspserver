@@ -34,7 +34,7 @@ namespace wejh.Model
             this.usertype = usertype;
             this.password = password;
         }
-        public UserCreditSql(JhUserData user, string password) : this(user.pid, user.type, password)
+        public UserCreditSql(JhUserData user, string password) : this(user.pid, int.Parse( user.type), password)
         {
         }
         private UserCreditSql(DataRow row) => ((IMySqlQueryable)this).Set(row);
@@ -112,10 +112,7 @@ namespace wejh.Model
                 return false;
             }
         }
-        public static UserCreditSql Combine(JhUserData user, string password)
-        {
-            return new UserCreditSql(user.pid, user.type, password);
-        }
+
         public UserCreditResult ToUserResultMobile()
         {
 

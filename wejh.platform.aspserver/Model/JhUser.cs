@@ -48,7 +48,7 @@ namespace wejh.Model
     {
         public string pid { get; set; }
         public string email { get; set; }
-        public int type { get; set; }
+        public string type { get; set; }
     }
 
     public static class JhUser
@@ -68,7 +68,7 @@ namespace wejh.Model
 
             if (jObject["state"].ToString() == "success")
             {
-                JhUserData jhUser = (JhUserData)JsonConvert.DeserializeObject(jObject["data"].ToString());
+                JhUserData jhUser = jObject["data"].ToObject<JhUserData>();
 
                 return new ResponceModel(200, "登录成功", jhUser);
             }
