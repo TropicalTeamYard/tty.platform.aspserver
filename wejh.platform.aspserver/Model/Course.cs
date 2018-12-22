@@ -182,6 +182,7 @@ namespace wejh.Model
                     UserInfoSql userInfoSql = new UserInfoSql(username);
                     if (userInfoSql.TryQuery())
                     {
+                        //说明你绑定过正方账号。
                         if (userInfoSql.pwbind_zfedu != null && userInfoSql.pwbind_zfedu != "")
                         {
                             TermTimeUni time = TermTime.Get();
@@ -219,7 +220,8 @@ namespace wejh.Model
                         }
                         else
                         {
-                            return new ResponceModel(403, "请重新绑定正方。");
+                            //SOLVED BUG 这里曾导致未绑定账号但任然显示重新绑定的错误提示信息。
+                            return new ResponceModel(403, "你还没有绑定正方。");
                         }
                     }
                     else

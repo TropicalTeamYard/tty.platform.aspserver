@@ -101,7 +101,8 @@ namespace wejh.Model
                     {
                         if (Course.GetZfCourse(username, password).code == 200)
                         {
-                            UserInfoSql userInfoSql = new UserInfoSql(username, pwbind_lib: password);
+                            //SOLVED BUG pwbind_lib 曾导致绑定出错。
+                            UserInfoSql userInfoSql = new UserInfoSql(username, pwbind_zfedu: password);
                             if (userInfoSql.Exists())
                             {
                                 userInfoSql.UpdatePwbind_zfedu();
