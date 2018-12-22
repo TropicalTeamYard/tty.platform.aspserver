@@ -46,7 +46,7 @@ namespace wejh.Model
             email = (string)row[nameof(email)];
             phone = (string)row[nameof(phone)];
 
-            linkedcourse = 
+            linkedcourse = ToolUtil.SplitString('|', (string)row[nameof(linkedcourse)]);
         }
         string IMySqlQueryable.GetAddcommand()
         {
