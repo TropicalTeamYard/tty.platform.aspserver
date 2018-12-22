@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using wejh.Model;
@@ -27,6 +29,18 @@ namespace wejh.Util
             
 
             return stringBuilder.ToString();
+        }
+
+        public static string JoinString(char seperator, IEnumerable<string> obj)
+        {
+            if (obj == null || obj.Count() == 0)
+            {
+                return "";
+            }
+            else
+            {
+                return string.Join(seperator, obj);
+            }
         }
     }
 }

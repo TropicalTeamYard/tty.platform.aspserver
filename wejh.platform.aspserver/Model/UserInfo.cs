@@ -33,7 +33,7 @@ namespace wejh.Model
         public string email { get; set; } = "";
         public string phone { get; set; } = "";
 
-        public List<string> linkedcourse { get; set; }
+        public List<string> linkedcourse { get; set; } = new List<string>();
 
         void IMySqlQueryable.Set(DataRow row)
         {
@@ -48,7 +48,7 @@ namespace wejh.Model
         }
         string IMySqlQueryable.GetAddcommand()
         {
-            return $"insert into {Config.UserInfoTable} (username,pwbind_lib,pwbind_card,pwbind_ycedu,pwbind_zfedu,email,phone,linkedcourse) values ('{username}','{pwbind_lib}','{pwbind_card}','{pwbind_ycedu}','{pwbind_zfedu}','{email}','{phone}','{((linkedcourse == null || linkedcourse.Count == 0)?"":string.Join('|', linkedcourse))}')";
+            return $"insert into {Config.UserInfoTable} (username,pwbind_lib,pwbind_card,pwbind_ycedu,pwbind_zfedu,email,phone,linkedcourse) values ('{username}','{pwbind_lib}','{pwbind_card}','{pwbind_ycedu}','{pwbind_zfedu}','{email}','{phone}','{ToolUtil.JoinString('|',linkedcourse)}')";
         }
         string IMySqlQueryable.GetQuerycommand()
         {
@@ -62,7 +62,7 @@ namespace wejh.Model
         }
         public void UpdateLinkedcourse()
         {
-            var cmd = $"update {Config.UserInfoTable} set linkedcourse='{((linkedcourse == null || linkedcourse.Count == 0) ? "" : string.Join('|', linkedcourse))}' where username like '{username}'";
+            var cmd = $"update {Config.UserInfoTable} set linkedcourse='{ToolUtil.JoinString('|', linkedcourse)}' where username like '{username}'";
             MySqlUtil.Execute(cmd);
         }
     }
