@@ -8,7 +8,7 @@ using wejh.Util;
 
 namespace wejh.Model
 {
-    public class UserInfoSql : IMySqlQueryable
+    public class UserInfoSql : ISqlObject
     {
         public UserInfoSql(string username, string pwbind_lib = "", string pwbind_card = "", string pwbind_ycedu = "", string pwbind_zfedu = "")
         {
@@ -22,51 +22,37 @@ namespace wejh.Model
         public UserInfoSql()
         {
         }
-        public UserInfoSql(DataRow row) => ((IMySqlQueryable)this).Set(row);
 
+        [SqlElement]
         public int id { get; set; }
+        [SqlElement]
         public string username { get; set; }
+        [SqlElement]
         public string pwbind_lib { get; set; } = "";
+        [SqlElement]
         public string pwbind_card { get; set; } = "";
+        [SqlElement]
         public string pwbind_ycedu { get; set; } = "";
+        [SqlElement][SqlBinding("pwbind_zfedu")]
         public string pwbind_zfedu { get; set; } = "";
+        [SqlElement]
         public string email { get; set; } = "";
+        [SqlElement]
         public string phone { get; set; } = "";
+        [SqlElement][SqlBinding("linkedcourse")]
+        public string linkedcourse { get; set; } = "";
 
-        public List<string> linkedcourse { get; set; } = new List<string>();
-
-        void IMySqlQueryable.Set(DataRow row)
+        public List<string> Linkedcourse
         {
-            id = (int)row[nameof(id)];
-            username = (string)row[nameof(username)];
-            pwbind_lib = (string)row[nameof(pwbind_lib)];
-            pwbind_card = (string)row[nameof(pwbind_card)];
-            pwbind_ycedu = (string)row[nameof(pwbind_ycedu)];
-            pwbind_zfedu = (string)row[nameof(pwbind_zfedu)];
-            email = (string)row[nameof(email)];
-            phone = (string)row[nameof(phone)];
-
-            linkedcourse = ToolUtil.SplitString('|', (string)row[nameof(linkedcourse)]);
-        }
-        string IMySqlQueryable.GetAddcommand()
-        {
-            return $"insert into {Config.UserInfoTable} (username,pwbind_lib,pwbind_card,pwbind_ycedu,pwbind_zfedu,email,phone,linkedcourse) values ('{username}','{pwbind_lib}','{pwbind_card}','{pwbind_ycedu}','{pwbind_zfedu}','{email}','{phone}','{ToolUtil.JoinString('|',linkedcourse)}')";
-        }
-        string IMySqlQueryable.GetQuerycommand()
-        {
-            return $"select * from {Config.UserInfoTable} where username like '{username}'";
+            get => ToolUtil.SplitString('|', linkedcourse);
+            set => linkedcourse = ToolUtil.JoinString('|', value);
         }
 
-        public void UpdatePwbind_zfedu()
-        {
-            var cmd = $"update {Config.UserInfoTable} set pwbind_lib='{pwbind_zfedu}' where username like '{username}'";
-            MySqlUtil.Execute(cmd);
-        }
-        public void UpdateLinkedcourse()
-        {
-            var cmd = $"update {Config.UserInfoTable} set linkedcourse='{ToolUtil.JoinString('|', linkedcourse)}' where username like '{username}'";
-            MySqlUtil.Execute(cmd);
-        }
+        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
+        string ISqlObject.Table => Config.UserInfoTable;
+
+        public void UpdatePwbind_ZfEdu() => this.Update("pwbind_zfedu");
+        public void UpdateLinkedCourse() => this.Update("linkedcourse");
     }
 
     public static class UserInfo
@@ -105,7 +91,7 @@ namespace wejh.Model
                             UserInfoSql userInfoSql = new UserInfoSql(username, pwbind_zfedu: password);
                             if (userInfoSql.Exists())
                             {
-                                userInfoSql.UpdatePwbind_zfedu();
+                                userInfoSql.UpdatePwbind_ZfEdu();
                             }
                             else
                             {

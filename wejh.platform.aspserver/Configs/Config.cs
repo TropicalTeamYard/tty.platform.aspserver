@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Configuration;
+using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -8,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using wejh.Model;
+using wejh.Util;
 
 namespace wejh.Configs
 {
@@ -15,6 +17,8 @@ namespace wejh.Configs
     {
         public static IConfiguration Configuration { get; set; }
         public static string Conn => Configuration.GetConnectionString("wejhplatform");
+        public static MySqlProvider MySqlProvider => new MySqlProvider(new MySqlConnection(Conn));
+
         public static string UserCreditTable => "usercredit";
         public static string CourseTable => "course";
         public static string UserInfoTable => "userinfo";

@@ -14,7 +14,6 @@ namespace wejh.Util
         {
             return Guid.NewGuid().ToString().Replace("-", "");
         }
-
         public static string MD5Encrypt32(string password)
         {
             string cl = password;
@@ -30,7 +29,6 @@ namespace wejh.Util
 
             return stringBuilder.ToString();
         }
-
         public static string JoinString(char seperator, IEnumerable<string> obj)
         {
             if (obj == null || obj.Count() == 0)
@@ -42,7 +40,6 @@ namespace wejh.Util
                 return string.Join(seperator, obj);
             }
         }
-
         public static List<string> SplitString(char seperator, string obj)
         {
             if (obj == null)

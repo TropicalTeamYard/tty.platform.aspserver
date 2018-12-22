@@ -13,7 +13,7 @@ namespace wejh.Model
     /// <summary>
     /// <see cref="Course"/>的业务模型。
     /// </summary>
-    public class CourseUni : IMySqlQueryable
+    public class CourseUni : ISqlObject
     {
         public CourseUni()
         {
@@ -36,44 +36,44 @@ namespace wejh.Model
 
             courseid = ToolUtil.MD5Encrypt32($"{year}*{term}*{name}*{location}*{weekrange}*{dayofweek}*{timerange}");
         }
-        
-        [JsonIgnore]
+
+        [JsonIgnore][SqlElement]
         public int id { get; set; }
         //课程的唯一标识符，主要用于查询。
-        [JsonIgnore]
+        [JsonIgnore][SqlElement]
         public string courseid { get; set; }
-        [JsonIgnore]
+        [JsonIgnore][SqlElement]
         public int year { get; set; }
         /// <summary>
         /// 3表示上学期，12表示下学期，16表示短学期。
         /// </summary>
-        [JsonIgnore]
+        [JsonIgnore][SqlElement]
         public int term { get; set; }
-
+        [SqlElement]
         public string name { get; set; }
+        [SqlElement]
         public string college { get; set; }
+        [SqlElement]
         public string type { get; set; }
+        [SqlElement]
         public string teacher { get; set; }
+        [SqlElement]
         public string campus { get; set; }
+        [SqlElement]
         public string location { get; set; }
+        [SqlElement]
         public string weekrange { get; set; }
+        [SqlElement]
         public string dayofweek { get; set; }
+        [SqlElement]
         public string timerange { get; set; }
+        [SqlElement]
         public int classscore { get; set; }
+        [SqlElement]
         public int classhour { get; set; }
 
-        void IMySqlQueryable.Set(DataRow row)
-        {
-            throw new NotImplementedException();
-        }
-        string IMySqlQueryable.GetAddcommand()
-        {
-            return $"insert into {Config.CourseTable} (id,courseid,year,term,name,college,type,teacher,campus,location,weekrange,dayofweek,timerange,classscore,classhour) values ({id},'{courseid}',{year},{term},'{name}','{college}','{type}','{teacher}','{campus}','{location}','{weekrange}','{dayofweek}','{timerange}',{classscore},{classhour})";
-        }
-        string IMySqlQueryable.GetQuerycommand()
-        {
-            return $"select * from {Config.CourseTable} where courseid like '{courseid}'";
-        }
+        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
+        string ISqlObject.Table => Config.CourseTable;
     }
     /// <summary>
     /// <see cref="CourseUni"/>的依赖数据。
@@ -205,8 +205,8 @@ namespace wejh.Model
                                         {
                                             item.Add();
                                         }
-                                        userInfoSql.linkedcourse = data.Map((m) => m.courseid).ToList();
-                                        userInfoSql.UpdateLinkedcourse();
+                                        userInfoSql.Linkedcourse = data.Map((m) => m.courseid).ToList();
+                                        userInfoSql.UpdateLinkedCourse();
                                     }
                                 }
 

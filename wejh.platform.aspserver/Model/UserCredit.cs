@@ -8,7 +8,7 @@ using wejh.Util;
 
 namespace wejh.Model
 {
-    public class UserCreditModel
+    public abstract class UserCreditModel
     {
         public UserCreditModel()
         {
@@ -20,10 +20,12 @@ namespace wejh.Model
             this.password = password;
         }
 
+        [SqlElement][SqlSearchKey]
         public string username { get; set; }
+        [SqlElement][SqlBinding("user")]
         public string password { get; set; }
     }
-    public class UserCreditSql : UserCreditModel, IMySqlQueryable
+    public class UserCreditSql : UserCreditModel, ISqlObject
     {
         public UserCreditSql()
         {
@@ -37,73 +39,117 @@ namespace wejh.Model
         public UserCreditSql(JhUserData user, string password) : this(user.pid, int.Parse( user.type), password)
         {
         }
+
+        [Obsolete]
         private UserCreditSql(DataRow row) => ((IMySqlQueryable)this).Set(row);
         
+        [SqlElement]
         public int id { get; set; }
+        [SqlElement][SqlBinding("user")]
         public int usertype { get; set; }
+        [SqlElement][SqlBinding("mobile")]
         public string mobile_name { get; set; }
+        [SqlElement][SqlBinding("mobile")]
         public string mobile_credit { get; set; }
+        [SqlElement][SqlBinding("pc")]
         public string pc_name { get; set; }
+        [SqlElement][SqlBinding("pc")]
         public string pc_credit { get; set; }
 
-        void IMySqlQueryable.Set(DataRow row)
-        {
-            id = (int)row[nameof(id)];
-            username = (string)row[nameof(username)];
-            usertype = (int)row[nameof(usertype)];
-            password = (string)row[nameof(password)];
-            mobile_name = (string)row[nameof(mobile_name)];
-            mobile_credit = (string)row[nameof(mobile_credit)];
-            pc_name = (string)row[nameof(pc_name)];
-            pc_credit = (string)row[nameof(pc_credit)];
-        }
-        string IMySqlQueryable.GetAddcommand()
-        {
+        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
+        string ISqlObject.Table => Config.UserCreditTable;
 
-            return $"insert into {Config.UserCreditTable}(username,usertype,password,mobile_name,mobile_credit,pc_name,pc_credit) values('{username}',{usertype},'{password}','{mobile_name}','{mobile_credit}','{pc_name}','{pc_credit}')";
-        }
-        string IMySqlQueryable.GetQuerycommand()
-        {
-            return $"select * from {Config.UserCreditTable} where username like '{username}'";
-        }
+        #region Obsolete Code
+        //[Obsolete]
+        //void IMySqlQueryable.Set(DataRow row)
+        //{
+        //    id = (int)row[nameof(id)];
+        //    username = (string)row[nameof(username)];
+        //    usertype = (int)row[nameof(usertype)];
+        //    password = (string)row[nameof(password)];
+        //    mobile_name = (string)row[nameof(mobile_name)];
+        //    mobile_credit = (string)row[nameof(mobile_credit)];
+        //    pc_name = (string)row[nameof(pc_name)];
+        //    pc_credit = (string)row[nameof(pc_credit)];
+        //}
+        //[Obsolete]
+        //string IMySqlQueryable.GetAddcommand()
+        //{
 
-        /// <summary>
-        /// 更新<see cref="UserCreditModel.password"/>和<see cref="usertype"/>的信息.
-        /// </summary>
-        /// <returns></returns>
-        public void UpdateUser()
+        //    return $"insert into {Config.UserCreditTable}(username,usertype,password,mobile_name,mobile_credit,pc_name,pc_credit) values('{username}',{usertype},'{password}','{mobile_name}','{mobile_credit}','{pc_name}','{pc_credit}')";
+        //}
+        //[Obsolete]
+        //string IMySqlQueryable.GetQuerycommand()
+        //{
+        //    return $"select * from {Config.UserCreditTable} where username like '{username}'";
+        //}
+
+        ///// <summary>
+        ///// 更新<see cref="UserCreditModel.password"/>和<see cref="usertype"/>的信息.
+        ///// </summary>
+        ///// <returns></returns>
+        //[Obsolete]
+        //public void UpdateUser2()
+        //{
+        //    var cmd = $"update {Config.UserCreditTable} set password='{password}',usertype={usertype} where username='{username}'";
+        //    MySqlUtil.Execute(cmd);
+        //}
+        ///// <summary>
+        ///// 更新<see cref="mobile_name"/>和<see cref="mobile_credit"/>的信息。
+        ///// </summary>
+        ///// <returns></returns>
+        //[Obsolete]
+        //public void UpdateMobile2()
+        //{
+        //    var cmd = $"update {Config.UserCreditTable} set mobile_name='{mobile_name}',mobile_credit='{mobile_credit}' where username like '{username}'";
+        //    MySqlUtil.Execute(cmd);
+        //}
+        //[Obsolete]
+        //public void UpdatePc2()
+        //{
+        //    var cmd = $"update {Config.UserCreditTable} set pc_name='{pc_name}',pc_credit='{pc_credit}' where username like '{username}'";
+        //    MySqlUtil.Execute(cmd);
+        //}
+        //[Obsolete]
+        //public bool TryQuery2(string credit, out string devicetype)
+        //{
+        //    var cmdmobile = $"select * from {Config.UserCreditTable} where mobile_credit like '{credit}'";
+        //    var cmdpc = $"select * from {Config.UserCreditTable} where pc_credit like '{credit}'";
+        //    if (MySqlUtil.TryQuery(cmdmobile, out DataTable table1))
+        //    {
+        //        devicetype = "mobile";
+        //        ((IMySqlQueryable)this).Set(table1.Rows[0]);
+        //        return true;
+        //    }
+        //    else if (MySqlUtil.TryQuery(cmdpc, out DataTable table2))
+        //    {
+        //        devicetype = "pc";
+        //        ((IMySqlQueryable)this).Set(table2.Rows[0]);
+        //        return true;
+        //    }
+        //    else
+        //    {
+        //        devicetype = null;
+        //        return false;
+        //    }
+        //}
+        #endregion
+
+        public void UpdateUser() => this.Update("user");
+        public void UpdateMobile() => this.Update("mobile");
+        public void UpdatePc() => this.Update("pc");
+        public bool TryQuery(string credit,out string devicetype)
         {
-            var cmd = $"update {Config.UserCreditTable} set password='{password}',usertype={usertype} where username='{username}'";
-            MySqlUtil.Execute(cmd);
-        }
-        /// <summary>
-        /// 更新<see cref="mobile_name"/>和<see cref="mobile_credit"/>的信息。
-        /// </summary>
-        /// <returns></returns>
-        public void UpdateMobile()
-        {
-            var cmd = $"update {Config.UserCreditTable} set mobile_name='{mobile_name}',mobile_credit='{mobile_credit}' where username like '{username}'";
-            MySqlUtil.Execute(cmd);
-        }
-        public void UpdatePc()
-        {
-            var cmd = $"update {Config.UserCreditTable} set pc_name='{pc_name}',pc_credit='{pc_credit}' where username like '{username}'";
-            MySqlUtil.Execute(cmd);
-        }
-        public bool TryQuery(string credit, out string devicetype)
-        {
-            var cmdmobile = $"select * from {Config.UserCreditTable} where mobile_credit like '{credit}'"; 
-            var cmdpc = $"select * from {Config.UserCreditTable} where pc_credit like '{credit}'";
-            if (MySqlUtil.TryQuery(cmdmobile,out DataTable table1))
+            if (SqlExtension.TryQuery<UserCreditSql>(nameof(credit),credit,out var result))
             {
                 devicetype = "mobile";
-                ((IMySqlQueryable)this).Set(table1.Rows[0]);
+                this.SetValue(result[0]);
                 return true;
             }
-            else if (MySqlUtil.TryQuery(cmdpc,out DataTable table2))
+            else if(SqlExtension.TryQuery<UserCreditSql>(nameof(credit),credit,out var result2))
             {
                 devicetype = "pc";
-                ((IMySqlQueryable)this).Set(table2.Rows[0]);
+                this.SetValue(result[0]);
                 return true;
             }
             else
