@@ -243,9 +243,6 @@ namespace wejh.Util
         string GetQuerycommand();
     }
 
-    /// <summary>
-    /// 提供<see cref="ISqlObject"/>依赖的方法实现。
-    /// </summary>
     public abstract class SqlBaseProvider
     {
         protected SqlBaseProvider(IDbConnection conn)
@@ -285,6 +282,9 @@ namespace wejh.Util
             }
         }
     }
+    /// <summary>
+    /// 提供<see cref="ISqlObject"/>依赖的MySql交互实现。
+    /// </summary>
     public class MySqlProvider : SqlBaseProvider
     {
         public MySqlProvider(IDbConnection conn) : base(conn)
@@ -507,7 +507,7 @@ namespace wejh.Util
             obj.SqlProvider.Execute(cmd);
         }
         /// <summary>
-        /// 根据<see cref="SqlSearchKeyAttribute"/>查询到的数据将<see cref="SqlBindingAttribute"/>绑定的属性更新。
+        /// 根据<see cref="SqlSearchKeyAttribute"/>将数据库相应行中<see cref="SqlBindingAttribute"/>绑定的属性更新。
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="binding"></param>

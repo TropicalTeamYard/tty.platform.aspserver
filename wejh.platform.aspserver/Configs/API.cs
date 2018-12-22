@@ -14,14 +14,9 @@ namespace wejh.Configs
 
         public static string GetAPI(APIKey key) => apiMap[key];
     }
-
     public enum APIKey
     {
         JhUser,
         ZjCourse,
-
-
-    }
-
-    
+    } 
 }
