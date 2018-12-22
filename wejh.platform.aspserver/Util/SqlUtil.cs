@@ -282,6 +282,7 @@ namespace wejh.Util
             }
         }
     }
+
     /// <summary>
     /// 提供<see cref="ISqlObject"/>依赖的MySql交互实现。
     /// </summary>
@@ -342,7 +343,7 @@ namespace wejh.Util
     }
 
     /// <summary>
-    /// 表示一个MySql对象，用反射的方式和数据库交互。
+    /// 表示一个Sql对象，用反射的方式和数据库交互。
     /// </summary>
     public interface ISqlObject
     {

@@ -28,24 +28,5 @@ namespace wejh
             return result;
         }
 
-        [Obsolete]
-        public static void Add(this IMySqlQueryable obj) => MySqlUtil.Add(obj);
-        [Obsolete]
-        public static bool TryQuery(this IMySqlQueryable obj)
-        {
-            if (MySqlUtil.TryQuery(obj, out DataTable table))
-            {
-                var row = table.Rows[0];
-                obj.Set(row);
-                return true;
-            }
-            else
-            {
-                return false;
-            }
-        }
-        [Obsolete]
-        public static bool Exists(this IMySqlQueryable obj) => MySqlUtil.Exists(obj);
-
     }
 }
