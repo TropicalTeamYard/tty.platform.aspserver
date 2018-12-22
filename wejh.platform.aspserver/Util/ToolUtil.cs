@@ -42,5 +42,17 @@ namespace wejh.Util
                 return string.Join(seperator, obj);
             }
         }
+
+        public static List<string> SplitString(char seperator, string obj)
+        {
+            if (obj == null)
+            {
+                return new List<string>();
+            }
+            else
+            {
+                return obj.Split(seperator).ToList();
+            }
+        }
     }
 }

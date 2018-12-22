@@ -45,6 +45,8 @@ namespace wejh.Model
             pwbind_zfedu = (string)row[nameof(pwbind_zfedu)];
             email = (string)row[nameof(email)];
             phone = (string)row[nameof(phone)];
+
+            linkedcourse = 
         }
         string IMySqlQueryable.GetAddcommand()
         {
