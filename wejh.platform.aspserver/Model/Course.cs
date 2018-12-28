@@ -141,7 +141,7 @@ namespace wejh.Model
             {
                 string param = $"username={username}&password={password}&year={year}&term={term}";
 
-                string result = HttpUtil.get(APIKey.ZjCourse, param);
+                string result = HttpUtil.get(APIKey.Zf_Course, param);
                 //string result = "{'status':'success','msg':[]}";
 
                 JObject jObject = (JObject)JsonConvert.DeserializeObject(result);
@@ -168,76 +168,83 @@ namespace wejh.Model
         }
 
         /// <summary>
-        /// 获取课表，此方法用于与外部进行交互。
+        /// 获取课表，此方法用于与外部进行交互，依赖<see cref="UserCredit"/>,<see cref="TermTime"/>,<see cref="UserInfoSql"/>。
         /// </summary>
         /// <param name="credit"></param>
         /// <returns></returns>
-        public static ResponceModel GetCourse(string credit)
+        internal static ResponceModel GetCourse(string credit)
         {
-
             try
             {
                 if (UserCredit.CheckUser(credit, out string username))
                 {
-                    UserInfoSql userInfoSql = new UserInfoSql(username);
-                    if (userInfoSql.TryQuery())
+                    UserInfoSql userInfo = new UserInfoSql(username);
+                    if (userInfo.TryQuery())
                     {
-                        //说明你绑定过正方账号。
-                        if (userInfoSql.pwbind_zfedu != null && userInfoSql.pwbind_zfedu != "")
+                        if (UserInfo.GetBindInfo(username,"jh").state != 0)
                         {
-                            TermTimeUni time = TermTime.Get();
-                            var result = GetZfCourse(username, userInfoSql.pwbind_zfedu, time.year, time.term);
-                            if (result.code == 200)
+                            //说明你绑定过正方账号。
+                            if (UserInfo.GetBindInfo(username,"zfedu").state != 0)
                             {
-                                var data = (List<CourseUni>)result.data;
-
-
-                                //用"|"来分割各个部分，这里我们假设courseid不会出现这个字符。
-                                //var strlink = string.Join('|', .ToArray());
-
-                                //TODO Put Data Into Database.
-                                if (data.Count > 0)
+                                if (JhUser.CheckUser(userInfo.jhpid,userInfo.pwbind_jh).code == 200)
                                 {
-                                    foreach (var item in data)
+                                    TermTimeUni time = TermTime.Get();
+                                    var result = GetZfCourse(userInfo.jhpid, userInfo.pwbind_zfedu, time.year, time.term);
+                                    if (result.code == 200)
                                     {
-                                        //在这里我们假设课表信息从不改变，虽然说绝大多数情况下是这样。
-                                        if (!item.Exists())
+                                        var data = (List<CourseUni>)result.data;
+
+                                        if (data.Count > 0)
                                         {
-                                            item.Add();
+                                            foreach (var item in data)
+                                            {
+                                                //在这里我们假设课表信息从不改变，虽然说绝大多数情况下是这样。
+                                                if (!item.Exists())
+                                                {
+                                                    item.Add();
+                                                }
+                                                userInfo.Linkedcourse = data.Map((m) => m.courseid).ToList();
+                                                userInfo.UpdateLinkedCourse();
+                                            }
                                         }
-                                        userInfoSql.Linkedcourse = data.Map((m) => m.courseid).ToList();
-                                        userInfoSql.UpdateLinkedCourse();
+
+                                        return new ResponceModel(200, "获取课表成功", data);
+
                                     }
+                                    else
+                                    {
+                                        return new ResponceModel(403, "请重新绑定正方");
+                                    } 
                                 }
-
-                                return new ResponceModel(200, "获取课表成功。", data);
-
+                                else
+                                {
+                                    return new ResponceModel(403, "请重新绑定正方");
+                                }
                             }
                             else
                             {
-                                return new ResponceModel(403, "请重新绑定正方。");
-                            }
+                                //SOLVED BUG 这里曾导致未绑定账号但任然显示重新绑定的错误提示信息。
+                                return new ResponceModel(403, "你还没有绑定正方");
+                            } 
                         }
                         else
                         {
-                            //SOLVED BUG 这里曾导致未绑定账号但任然显示重新绑定的错误提示信息。
-                            return new ResponceModel(403, "你还没有绑定正方。");
+                            return new ResponceModel(403, "请重新绑定精弘账号");
                         }
                     }
                     else
                     {
-                        return new ResponceModel(403, "你还没有绑定正方。");
+                        return new ResponceModel(403, "请绑定精弘账号");
                     }
                 }
                 else
                 {
-                    return new ResponceModel(403, "自动登录已失效，请重新绑定。");
+                    return new ResponceModel(403, "自动登录失败，请重新登录");
                 }
             }
             catch (Exception ex)
             {
                 return ResponceModel.GetInstanceError(ex);
-
             }
         }
     }

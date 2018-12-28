@@ -20,9 +20,14 @@ namespace wejh.Model
             this.password = password;
         }
 
-        [SqlElement][SqlSearchKey]
+        [SqlElement]
+        [SqlSearchKey]
         public string username { get; set; }
-        [SqlElement][SqlBinding("user")]
+        [SqlElement]
+        [SqlBinding("nickname")]
+        public string nickname { get; set; }
+        [SqlElement]
+        [SqlBinding("password")]
         public string password { get; set; }
     }
     public class UserCreditSql : UserCreditModel, ISqlObject
@@ -30,126 +35,49 @@ namespace wejh.Model
         public UserCreditSql()
         {
         }
-        public UserCreditSql(string username, int usertype, string password)
+        public UserCreditSql(string username)
         {
             this.username = username;
-            this.usertype = usertype;
+        }
+        public UserCreditSql(string username, string nickname, string password)
+        {
+            this.username = username;
+            this.nickname = nickname;
             this.password = password;
         }
-        public UserCreditSql(JhUserData user, string password) : this(user.pid, int.Parse( user.type), password)
-        {
-        }
 
-        [Obsolete]
-        private UserCreditSql(DataRow row) => ((IMySqlQueryable)this).Set(row);
-        
         [SqlElement]
-        public int id { get; set; }
-        [SqlElement][SqlBinding("user")]
-        public int usertype { get; set; }
-        [SqlElement][SqlBinding("mobile")]
-        public string mobile_name { get; set; }
-        [SqlElement][SqlBinding("mobile")]
-        public string mobile_credit { get; set; }
-        [SqlElement][SqlBinding("pc")]
-        public string pc_name { get; set; }
-        [SqlElement][SqlBinding("pc")]
-        public string pc_credit { get; set; }
+        [SqlBinding("web")]
+        public string web_credit { get; set; } = "";
+        [SqlElement]
+        [SqlBinding("mobile")]
+        public string mobile_credit { get; set; } = "";
+        [SqlElement]
+        [SqlBinding("pc")]
+        public string pc_credit { get; set; } = "";
 
         SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
         string ISqlObject.Table => Config.UserCreditTable;
 
-        #region Obsolete Code
-        //[Obsolete]
-        //void IMySqlQueryable.Set(DataRow row)
-        //{
-        //    id = (int)row[nameof(id)];
-        //    username = (string)row[nameof(username)];
-        //    usertype = (int)row[nameof(usertype)];
-        //    password = (string)row[nameof(password)];
-        //    mobile_name = (string)row[nameof(mobile_name)];
-        //    mobile_credit = (string)row[nameof(mobile_credit)];
-        //    pc_name = (string)row[nameof(pc_name)];
-        //    pc_credit = (string)row[nameof(pc_credit)];
-        //}
-        //[Obsolete]
-        //string IMySqlQueryable.GetAddcommand()
-        //{
-
-        //    return $"insert into {Config.UserCreditTable}(username,usertype,password,mobile_name,mobile_credit,pc_name,pc_credit) values('{username}',{usertype},'{password}','{mobile_name}','{mobile_credit}','{pc_name}','{pc_credit}')";
-        //}
-        //[Obsolete]
-        //string IMySqlQueryable.GetQuerycommand()
-        //{
-        //    return $"select * from {Config.UserCreditTable} where username like '{username}'";
-        //}
-
-        ///// <summary>
-        ///// 更新<see cref="UserCreditModel.password"/>和<see cref="usertype"/>的信息.
-        ///// </summary>
-        ///// <returns></returns>
-        //[Obsolete]
-        //public void UpdateUser2()
-        //{
-        //    var cmd = $"update {Config.UserCreditTable} set password='{password}',usertype={usertype} where username='{username}'";
-        //    MySqlUtil.Execute(cmd);
-        //}
-        ///// <summary>
-        ///// 更新<see cref="mobile_name"/>和<see cref="mobile_credit"/>的信息。
-        ///// </summary>
-        ///// <returns></returns>
-        //[Obsolete]
-        //public void UpdateMobile2()
-        //{
-        //    var cmd = $"update {Config.UserCreditTable} set mobile_name='{mobile_name}',mobile_credit='{mobile_credit}' where username like '{username}'";
-        //    MySqlUtil.Execute(cmd);
-        //}
-        //[Obsolete]
-        //public void UpdatePc2()
-        //{
-        //    var cmd = $"update {Config.UserCreditTable} set pc_name='{pc_name}',pc_credit='{pc_credit}' where username like '{username}'";
-        //    MySqlUtil.Execute(cmd);
-        //}
-        //[Obsolete]
-        //public bool TryQuery2(string credit, out string devicetype)
-        //{
-        //    var cmdmobile = $"select * from {Config.UserCreditTable} where mobile_credit like '{credit}'";
-        //    var cmdpc = $"select * from {Config.UserCreditTable} where pc_credit like '{credit}'";
-        //    if (MySqlUtil.TryQuery(cmdmobile, out DataTable table1))
-        //    {
-        //        devicetype = "mobile";
-        //        ((IMySqlQueryable)this).Set(table1.Rows[0]);
-        //        return true;
-        //    }
-        //    else if (MySqlUtil.TryQuery(cmdpc, out DataTable table2))
-        //    {
-        //        devicetype = "pc";
-        //        ((IMySqlQueryable)this).Set(table2.Rows[0]);
-        //        return true;
-        //    }
-        //    else
-        //    {
-        //        devicetype = null;
-        //        return false;
-        //    }
-        //}
-        #endregion
-
-        public void UpdateUser() => this.Update("user");
+        public void UpdateNickName() => this.Update("nickname");
+        public void UpdatePassword() => this.Update("password");
+        public void UpdateWeb() => this.Update("web");
         public void UpdateMobile() => this.Update("mobile");
         public void UpdatePc() => this.Update("pc");
-        public bool TryQuery(string credit,out string devicetype)
+        public bool TryQuery(string credit, out string devicetype)
         {
-            if (SqlExtension.TryQuery<UserCreditSql>(nameof(credit),credit,out var result))
+            //SOLVED BUG 查询名出错，导致程序无法检查凭证是否有效。
+            if (SqlExtension.TryQuery<UserCreditSql>("mobile_credit", credit, out var result))
             {
                 devicetype = "mobile";
                 this.SetValue(result[0]);
                 return true;
             }
-            else if(SqlExtension.TryQuery<UserCreditSql>(nameof(credit),credit,out var result2))
+            else if (SqlExtension.TryQuery<UserCreditSql>("pc_credit", credit, out var result2))
             {
                 devicetype = "pc";
-                this.SetValue(result[0]);
+                //SOLVED BUG 使用result导致程序无法返回正确结果。
+                this.SetValue(result2[0]);
                 return true;
             }
             else
@@ -161,94 +89,105 @@ namespace wejh.Model
 
         public UserCreditResult ToUserResultMobile()
         {
-
-            return new UserCreditResult(username, usertype, mobile_credit, mobile_name);
+            return new UserCreditResult(username, nickname, mobile_credit);
         }
         public UserCreditResult ToUserResultPc()
         {
-            return new UserCreditResult(username, usertype, pc_credit, pc_name);
+            return new UserCreditResult(username, nickname, pc_credit);
         }
     }
     public class UserCreditResult
     {
-        public UserCreditResult(string username, int usertype, string credit, string devicename)
+        public UserCreditResult(string username, string nickname, string credit)
         {
             this.username = username;
-            this.usertype = usertype;
+            this.nickname = nickname;
             this.credit = credit;
-            this.devicename = devicename;
         }
 
         public string username { get; set; }
-        public int usertype { get; set; }
+        public string nickname { get; set; }
         public string credit { get; set; }
-        public string devicename { get; set; }
     }
 
+    /// <summary>
+    /// 处理与用户凭证相关的信息，包括[登录]、[自动登录]、[注册]、[改密码]、[改昵称]
+    /// </summary>
     public static class UserCredit
     {
-        public static ResponceModel Login(string username, string password, string devicetype, string devicename)
+        internal static ResponceModel Control(string method, string username = "", string password = "", string nickname = "", string devicetype = "", string newpassword = "", string credit = "")
         {
             try
             {
-                if (devicetype == "pc" || devicetype == "mobile")
+                if (method == "register")
                 {
-                    if (username != "" && password != "")
+                    if (username == null || password == null || nickname == null)
                     {
-                        //向精弘用户中心服务器验证登录
-                        var result = JhUser.CheckUser(username, password);
-                        //验证成功
-                        if (result.code == 200)
-                        {
-                            UserCreditSql userSql = new UserCreditSql((JhUserData)result.data, password);
-                            if (devicetype == "mobile")
-                            {
-                                userSql.mobile_name = devicename;
-                                userSql.mobile_credit = ToolUtil.GetNewToken();
-
-                                if (userSql.Exists())
-                                {
-                                    userSql.UpdateUser();
-                                    userSql.UpdateMobile();
-                                }
-                                else
-                                {
-                                    userSql.Add();
-                                }
-
-                                return new ResponceModel(result.code, result.msg, userSql.ToUserResultMobile());
-                            }
-                            else
-                            {
-                                userSql.pc_name = devicename;
-                                userSql.pc_credit = ToolUtil.GetNewToken();
-
-                                if (userSql.Exists())
-                                {
-                                    userSql.UpdateUser() ;
-                                    userSql.UpdatePc() ;
-                                }
-                                else
-                                {
-                                    userSql.Add();
-                                }
-
-                                return new ResponceModel(result.code, result.msg, userSql.ToUserResultPc());
-                            }
-                        }
-                        else
-                        {
-                            return new ResponceModel(result.code, result.msg);
-                        }
+                        return ResponceModel.GetInstanceInvalid();
                     }
                     else
                     {
-                        return new ResponceModel(403, "用户名或密码不能为空。");
+                        return Register(username, password, nickname);
+                    }
+                }
+                else if (method == "quicklogin")
+                {
+                    if (username == null || password == null || devicetype == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return QuickLogin(username, password,  devicetype);
+                    }
+                }
+                else if (method == "login")
+                {
+                    if (username == null || password == null || devicetype == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return Login(username, password, devicetype);
+                    }
+                }
+                else if (method == "autologin")
+                {
+                    if (credit == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return AutoLogin(credit);
+                    }
+                }
+                else if (method == "changepw")
+                {
+                    if (username == null || password == null || newpassword == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return ChangePw(username, password, newpassword);
+                    }
+                }
+                else if (method == "changenickname")
+                {
+                    if (credit == null || nickname == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return ChangeNickName(credit, nickname);
                     }
                 }
                 else
                 {
-                    return new ResponceModel(403, "设备类型不符合。");
+                    return ResponceModel.GetInstanceInvalid();
                 }
             }
             catch (Exception ex)
@@ -256,74 +195,212 @@ namespace wejh.Model
                 return ResponceModel.GetInstanceError(ex);
             }
         }
-
-        public static ResponceModel AutoLogin(string credit)
+        private static ResponceModel Register(string username, string password, string nickname)
         {
-            if (credit == null)
+            UserCreditSql user = new UserCreditSql(username, nickname, password);
+            //-----此处说明该username已经创建-----
+            if (user.TryQuery())
             {
-                return ResponceModel.GetInstanceInvalid();
+                return new ResponceModel(402, "该账号已存在");
             }
             else
             {
-                try
+                user.Add();
+                return new ResponceModel(200, "注册账户成功");
+            }
+        }
+        /// <summary>
+        /// 为了兼容微精弘添加的快速绑定方法。
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <param name="nickname"></param>
+        /// <returns></returns>
+        private static ResponceModel QuickLogin(string username, string password, string devicetype)
+        {
+
+            if (username != "" && password != "")
+            {
+                UserCreditSql user = new UserCreditSql(username, "wejh" ,password);
+                if (user.TryQuery())
                 {
-                    UserCreditSql userSql = new UserCreditSql();
-                    if (userSql.TryQuery(credit,out string devicetype))
+                }
+                else
+                {
+                    //验证精弘账号。
+                    var result = UserInfo.BindJh(username,username, password);
+                    if (result.code == 200)
                     {
-                        var result = JhUser.CheckUser(userSql.username, userSql.password);
-                        if (result.code == 200)
+                        if (user.Exists())
                         {
-                            //移动端登录
+                            user.UpdatePassword();   
+                        }
+                        else
+                        {
+                            user.Add();
+                        }
+                    }
+                }
+                return Login(username, password, devicetype);
+            }
+            else
+            {
+                return new ResponceModel(402, "用户名、密码或昵称不能为空");
+            }
+
+        }
+        private static ResponceModel Login(string username, string password, string devicetype)
+        {
+            if (devicetype == "mobile" || devicetype == "pc")
+            {
+                if (username == "" || password == "")
+                {
+                    return new ResponceModel(402, "用户名或密码为空");
+                }
+                else
+                {
+                    //SOLVED BUG 曾导致无法依据键查询导致故障。
+                    UserCreditSql user = new UserCreditSql(username);
+                    if (user.TryQuery())
+                    {
+                        if (user.password == password)
+                        {
                             if (devicetype == "mobile")
                             {
-                                userSql.mobile_credit = ToolUtil.GetNewToken();
-                                //更新数据库。
-                                userSql.UpdateMobile();
-                                return new ResponceModel(200, "自动登录成功。", userSql.ToUserResultMobile());
+                                user.mobile_credit = ToolUtil.GetNewToken();
+                                user.UpdateMobile();
+                                return new ResponceModel(200, "登录成功", user.ToUserResultMobile());
+                            }
+                            else if (devicetype == "pc")
+                            {
+                                user.pc_credit = ToolUtil.GetNewToken();
+                                user.UpdatePc();
+                                return new ResponceModel(200, "登录成功", user.ToUserResultPc());
                             }
                             else
                             {
-                                userSql.pc_credit = ToolUtil.GetNewToken();
-                                //更新数据库。
-                                userSql.UpdatePc();
-                                return new ResponceModel(200, "自动登录成功。", userSql.ToUserResultPc());
+                                return null;
                             }
                         }
                         else
                         {
-                            return new ResponceModel(403, "自动登录已失效，请重新绑定账号");
+                            return new ResponceModel(402, "用户密码错误");
                         }
                     }
                     else
                     {
-                        return new ResponceModel(403, "自动登录失败。");
+                        return new ResponceModel(402, "该用户不存在");
                     }
                 }
-                catch (Exception ex)
+            }
+            else
+            {
+                return new ResponceModel(402, "设备类型不符合");
+            }
+        }
+        private static ResponceModel ChangePw(string username, string password, string newpassword)
+        {
+            if (username == "" || password == "" || newpassword == "")
+            {
+                return new ResponceModel(402, "某些字段为空");
+            }
+            else
+            {
+                UserCreditSql user = new UserCreditSql(username);
+                if (user.TryQuery())
                 {
-                    return ResponceModel.GetInstanceError(ex);
+                    if (user.password == password)
+                    {
+                        user.password = newpassword;
+                        //-----修改密码后，所有自动登录方式都会失效-----
+                        user.mobile_credit = "";
+                        user.pc_credit = "";
+                        user.web_credit = "";
+                        user.UpdatePassword();
+                        user.UpdateMobile();
+                        user.UpdatePc();
+                        return new ResponceModel(200, "修改密码成功，请重新登录");
+                    }
+                    else
+                    {
+                        return new ResponceModel(402, "用户密码错误");
+                    }
+                }
+                else
+                {
+                    return new ResponceModel(402, "该用户不存在");
                 }
             }
         }
+        private static ResponceModel ChangeNickName(string credit, string nickname)
+        {
+            if (credit == "" || nickname == "")
+            {
+                return new ResponceModel(402, "某些字段为空");
+            }
+            //说明该用户存在。
+            if (CheckUser(credit,out string username))
+            {
+                UserCreditSql user = new UserCreditSql(username);
+                user.nickname = nickname;
+                user.UpdateNickName();
+                return new ResponceModel(200, "修改昵称成功");
+            }
+            else
+            {
+                return new ResponceModel(402, "自动登录已失效，请重新登录");
+            }
+        }
+        private static ResponceModel AutoLogin(string credit)
+        {
+            if (credit == "")
+            {
+                return new ResponceModel(402, "凭证为空");
+            }
+            else
+            {
+                UserCreditSql user = new UserCreditSql();
+                if (user.TryQuery(credit, out string devicetype))
+                {
+                    if (devicetype == "mobile")
+                    {
+                        user.mobile_credit = ToolUtil.GetNewToken();
+                        user.UpdateMobile();
 
+                        return new ResponceModel(200, "自动登录成功", user.ToUserResultMobile());
+                    }
+                    else
+                    {
+                        user.pc_credit = ToolUtil.GetNewToken();
+                        user.UpdatePc();
 
+                        return new ResponceModel(200, "自动登录成功", user.ToUserResultPc());
+                    }
+                }
+                else
+                {
+                    return new ResponceModel(200, "自动登录已失效，请重新登录");
+                }
+            }
+        }
 
         /// <summary>
         /// 本地检查用户凭证是否生效。
         /// </summary>
         /// <param name="credit"></param>
         /// <returns></returns>
-        public static bool CheckUser(string credit, out string username)
+        internal static bool CheckUser(string credit, out string username)
         {
-            if (credit == null)
+            if (credit == null || credit == "")
             {
                 username = null;
                 return false;
             }
             else
             {
+                //SOVLED BUG
                 UserCreditSql userSql = new UserCreditSql();
-                if (userSql.TryQuery(credit,out string devicetype))
+                if (userSql.TryQuery(credit, out string devicetype))
                 {
                     username = userSql.username;
                     return true;
@@ -336,6 +413,5 @@ namespace wejh.Model
 
             }
         }
-
     }
 }

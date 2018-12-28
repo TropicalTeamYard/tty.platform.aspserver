@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using wejh.Configs;
+using System.Threading.Tasks;
 
-namespace wejh.Util
+namespace wejh.test.Http
 {
     /// <summary>
     /// <see cref="HttpUtil"/>用于和http服务器进行交互。
@@ -51,7 +53,6 @@ namespace wejh.Util
             return Unicode2String(responseString);
         }
 
-        public static string get(APIKey key, string paramters, string token = "") => get(API.GetAPI(key), paramters, token);
 
         public static string post(string url, string postdata, string token = "")
         {
@@ -64,6 +65,7 @@ namespace wejh.Util
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = data.Length;
+            //request.Timeout = 500;
 
             if (token != null && token != "")
             {
@@ -80,5 +82,4 @@ namespace wejh.Util
             return Unicode2String(new StreamReader(response.GetResponseStream()).ReadToEnd());
         }
     }
-
 }

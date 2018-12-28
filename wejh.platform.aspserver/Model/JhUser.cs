@@ -77,11 +77,11 @@ namespace wejh.Model
                 string info = jObject["info"].ToString();
                 if (info.Contains("密码不正确"))
                 {
-                    return new ResponceModel(403, "密码错误。", null);
+                    return new ResponceModel(403, "密码错误", null);
                 }
                 else
                 {
-                    return new ResponceModel(403, "未注册账户。", null);
+                    return new ResponceModel(403, "未注册账户", null);
                 }
             }
         }

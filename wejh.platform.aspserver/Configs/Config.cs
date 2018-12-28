@@ -13,15 +13,15 @@ using wejh.Util;
 
 namespace wejh.Configs
 {
-    public static class Config
+    internal static class Config
     {
-        public static IConfiguration Configuration { get; set; }
-        public static string Conn => Configuration.GetConnectionString("wejhplatform");
-        public static MySqlProvider MySqlProvider => new MySqlProvider(new MySqlConnection(Conn));
+        internal static IConfiguration Configuration { get; set; }
+        internal static string Conn => Configuration.GetConnectionString("wejhplatform");
+        internal static MySqlProvider MySqlProvider => new MySqlProvider(new MySqlConnection(Conn));
 
-        public static string UserCreditTable => "usercredit";
-        public static string CourseTable => "course";
-        public static string UserInfoTable => "userinfo";
+        internal static string UserCreditTable => "usercredit";
+        internal static string CourseTable => "course";
+        internal static string UserInfoTable => "userinfo";
 
         internal static TermTimeUni[] GetTimeConfig()
         {

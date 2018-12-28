@@ -332,7 +332,6 @@ namespace wejh.Util
             }
             catch (Exception)
             {
-
                 throw;
             }
             finally
@@ -503,7 +502,7 @@ namespace wejh.Util
                 }
             }
             //生成命令语句。
-            string cmd = $"insert into {obj.Table} set ({string.Join(',',vs.Names)}) values ({string.Join(',',vs.Values)})" ;
+            string cmd = $"insert into {obj.Table} set  {(string.Join(',',vs.Map((m)=> $"{m.Name}={m.Value}")))}" ;
 
             obj.SqlProvider.Execute(cmd);
         }
@@ -634,7 +633,8 @@ namespace wejh.Util
         private static bool TryGetSqlElementName(this PropertyInfo obj, out string name)
         {
             var attribute = obj.GetCustomAttribute<SqlElementAttribute>();
-            if (obj!=null)
+            //SOLVED BUG 曾导致程序因为没有SqlElement特性而崩溃。
+            if (attribute!=null)
             {
                 if (attribute.Name == null)
                 {

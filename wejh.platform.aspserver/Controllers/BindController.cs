@@ -1,37 +1,33 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using wejh.Configs;
 using wejh.Model;
 using wejh.Util;
 
 namespace wejh.platform.aspserver.Controllers
 {
-    /// <summary>
-    /// 自动登录的API逻辑
-    /// </summary>
     [Produces("application/json")]
-    [Route("api/autoLogin")]
-    public class AutoLoginController : Controller
+    [Route("api/bind")]
+    public class BindController : Controller
     {
         [HttpGet]
-        public JsonResult Get(string credit)
+        public JsonResult Get(string credit, string bindname, string password, string pid)
         {
 #if DEBUG
-            return Post(credit);
+            return Post(credit, bindname, password, pid);
 #else
             return ResponceModel.GetInstanceBaned();
 #endif
         }
 
         [HttpPost]
-        public JsonResult Post(string credit)
+        public JsonResult Post(string credit, string bindname, string password, string pid)
         {
-            return UserCredit.AutoLogin(credit);
+            return UserInfo.BindControl(credit, bindname, password, pid);
         }
+
     }
 }
