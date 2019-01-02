@@ -8,6 +8,21 @@ using wejh.Util;
 
 namespace wejh.Model
 {
+    public enum UserType
+    {
+        /// <summary>
+        /// 普通用户
+        /// </summary>
+        COMMON = 2,
+        /// <summary>
+        /// 测试账户
+        /// </summary>
+        TEST = 2048,
+        /// <summary>
+        /// 用于和微精弘唯一绑定的账户
+        /// </summary>
+        WEJH = 1024,
+    }
     public abstract class UserCreditModel
     {
         public UserCreditModel()
@@ -39,11 +54,12 @@ namespace wejh.Model
         {
             this.username = username;
         }
-        public UserCreditSql(string username, string nickname, string password)
+        public UserCreditSql(string username, string nickname, string password,UserType userType)
         {
             this.username = username;
             this.nickname = nickname;
             this.password = password;
+            UserType = userType;
         }
 
         [SqlElement]
@@ -55,7 +71,14 @@ namespace wejh.Model
         [SqlElement]
         [SqlBinding("pc")]
         public string pc_credit { get; set; } = "";
+        [SqlElement]
+        public string usertype { get; set; } = "COMMON";
 
+        public UserType UserType
+        {
+            get => Enum.Parse<UserType>(usertype);
+            set => usertype = value.ToString();
+        }
         SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
         string ISqlObject.Table => Config.UserCreditTable;
 
@@ -89,25 +112,27 @@ namespace wejh.Model
 
         public UserCreditResult ToUserResultMobile()
         {
-            return new UserCreditResult(username, nickname, mobile_credit);
+            return new UserCreditResult(username, nickname, mobile_credit,usertype);
         }
         public UserCreditResult ToUserResultPc()
         {
-            return new UserCreditResult(username, nickname, pc_credit);
+            return new UserCreditResult(username, nickname, pc_credit,usertype);
         }
     }
     public class UserCreditResult
     {
-        public UserCreditResult(string username, string nickname, string credit)
+        public UserCreditResult(string username, string nickname, string credit,string usertype)
         {
             this.username = username;
             this.nickname = nickname;
             this.credit = credit;
+            this.usertype = usertype;
         }
 
         public string username { get; set; }
         public string nickname { get; set; }
         public string credit { get; set; }
+        public string usertype { get; set; }
     }
 
     /// <summary>
@@ -130,7 +155,7 @@ namespace wejh.Model
                         return Register(username, password, nickname);
                     }
                 }
-                else if (method == "quicklogin")
+                else if (method == "wejhlogin")
                 {
                     if (username == null || password == null || devicetype == null)
                     {
@@ -138,7 +163,7 @@ namespace wejh.Model
                     }
                     else
                     {
-                        return QuickLogin(username, password,  devicetype);
+                        return WejhLogin(username, password, devicetype);
                     }
                 }
                 else if (method == "login")
@@ -197,17 +222,35 @@ namespace wejh.Model
         }
         private static ResponceModel Register(string username, string password, string nickname)
         {
-            UserCreditSql user = new UserCreditSql(username, nickname, password);
+            //检查输入，此部分需要在本地先进行检查。
+            if (username == "" || password == "" || nickname == "")
+            {
+                return new ResponceModel(403, "用户名，密码，或者昵称为空");
+            }
+            else if (!CheckUtil.Username(username,UserType.COMMON))
+            {
+                return new ResponceModel(403, "用户名不符合命名规则，用户名应不包含英文特殊字符，长度在2~10位，且不能为纯数字。");
+            }
+            else if (!CheckUtil.Password(password))
+            {
+                return new ResponceModel(403, "密码太长或太短。");
+            }
+            else if (!CheckUtil.Password(nickname))
+            {
+                return new ResponceModel(403, "昵称不符合命名规则，昵称长度应该在2~15位。");
+            }
+            UserCreditSql user = new UserCreditSql(username, nickname, password,UserType.COMMON);
             //-----此处说明该username已经创建-----
             if (user.TryQuery())
             {
-                return new ResponceModel(402, "该账号已存在");
+                return new ResponceModel(403, "该账号已存在。");
             }
             else
             {
                 user.Add();
                 return new ResponceModel(200, "注册账户成功");
             }
+
         }
         /// <summary>
         /// 为了兼容微精弘添加的快速绑定方法。
@@ -216,24 +259,24 @@ namespace wejh.Model
         /// <param name="password"></param>
         /// <param name="nickname"></param>
         /// <returns></returns>
-        private static ResponceModel QuickLogin(string username, string password, string devicetype)
+        private static ResponceModel WejhLogin(string username, string password, string devicetype)
         {
 
             if (username != "" && password != "")
             {
-                UserCreditSql user = new UserCreditSql(username, "wejh" ,password);
+                UserCreditSql user = new UserCreditSql(username, "wejh", password,UserType.WEJH);
                 if (user.TryQuery())
                 {
                 }
                 else
                 {
                     //验证精弘账号。
-                    var result = UserInfo.BindJh(username,username, password);
+                    var result = UserInfo.BindJh(username, username, password);
                     if (result.code == 200)
                     {
                         if (user.Exists())
                         {
-                            user.UpdatePassword();   
+                            user.UpdatePassword();
                         }
                         else
                         {
@@ -255,7 +298,7 @@ namespace wejh.Model
             {
                 if (username == "" || password == "")
                 {
-                    return new ResponceModel(402, "用户名或密码为空");
+                    return new ResponceModel(403, "用户名或密码为空");
                 }
                 else
                 {
@@ -279,30 +322,31 @@ namespace wejh.Model
                             }
                             else
                             {
+                                //TODO咱不支持网页端的操作。
                                 return null;
                             }
                         }
                         else
                         {
-                            return new ResponceModel(402, "用户密码错误");
+                            return new ResponceModel(403, "用户密码错误");
                         }
                     }
                     else
                     {
-                        return new ResponceModel(402, "该用户不存在");
+                        return new ResponceModel(403, "该用户不存在");
                     }
                 }
             }
             else
             {
-                return new ResponceModel(402, "设备类型不符合");
+                return new ResponceModel(403, "设备类型不符合");
             }
         }
         private static ResponceModel ChangePw(string username, string password, string newpassword)
         {
             if (username == "" || password == "" || newpassword == "")
             {
-                return new ResponceModel(402, "某些字段为空");
+                return new ResponceModel(403, "用户名，旧密码或新密码为空");
             }
             else
             {
@@ -339,7 +383,7 @@ namespace wejh.Model
                 return new ResponceModel(402, "某些字段为空");
             }
             //说明该用户存在。
-            if (CheckUser(credit,out string username))
+            if (CheckUser(credit, out string username))
             {
                 UserCreditSql user = new UserCreditSql(username);
                 user.nickname = nickname;
@@ -355,7 +399,7 @@ namespace wejh.Model
         {
             if (credit == "")
             {
-                return new ResponceModel(402, "凭证为空");
+                return new ResponceModel(403, "用户凭证为空");
             }
             else
             {
