@@ -77,7 +77,9 @@ namespace tty.Model
         [SqlEncrypt]
         public string pc_credit { get; set; } = "";
         [SqlElement]
+        [SqlBinding("usertype")]
         public string usertype { get; set; } = "COMMON";
+
 
         public UserType UserType
         {
@@ -87,6 +89,7 @@ namespace tty.Model
         SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
         string ISqlObject.Table => Config.UserCreditTable;
 
+        public void UpdateUserType() => this.Update("usertype");
         public void UpdateNickName() => this.Update("nickname");
         public void UpdatePassword() => this.Update("password");
         public void UpdateWeb() => this.Update("web");
@@ -142,7 +145,7 @@ namespace tty.Model
 
     /// <summary>
     /// 处理与用户凭证相关的信息，包括[登录]、[自动登录]、[注册]、[改密码]、[改昵称]
-    /// Link::<see cref="Controllers.HelloController"/>
+    /// Link::<see cref="Controllers.UserController"/>
     /// </summary>
     public static class UserCredit
     {
@@ -258,6 +261,7 @@ namespace tty.Model
             }
 
         }
+
         /// <summary>
         /// 为了兼容微精弘添加的快速绑定方法。
         /// </summary>
@@ -267,34 +271,36 @@ namespace tty.Model
         /// <returns></returns>
         private static ResponceModel WejhLogin(string username, string password, string devicetype)
         {
-
             if (username != "" && password != "")
             {
-                UserCreditSql user = new UserCreditSql(username, "wejh", password, UserType.WEJH);
-                if (user.TryQuery())
+                UserCreditSql user = new UserCreditSql(username);
+                //成功登录
+                var result = JhUser.CheckUser(username, password);
+                var data = (JhUserData)result.data;
+                if (result.code == 200)
                 {
-                }
-                else
-                {
-                    //验证精弘账号。
-                    var result = UserInfo.BindJh(username, username, password);
-                    if (result.code == 200)
+                    //登录成功，自动更新密码信息。
+                    user.password = password;
+                    user.UserType = UserType.WEJH;
+                    user.nickname = "wejh";
+                    if (user.Exists())
                     {
-                        if (user.Exists())
-                        {
-                            user.UpdatePassword();
-                        }
-                        else
-                        {
-                            user.Add();
-                        }
+                        user.UpdatePassword();
+                        user.UpdateUserType();
                     }
+                    else
+                    {
+                        user.Add();
+                    }
+                    //UserInfoSql userInfo = new UserInfoSql(username);
+                    //MARK 从BindJH实现绑定。
+                    UserInfo.BindJh(username, username, password);
                 }
                 return Login(username, password, devicetype);
             }
             else
             {
-                return new ResponceModel(402, "用户名、密码或昵称不能为空");
+                return new ResponceModel(403, "用户名、密码或昵称为空");
             }
 
         }
@@ -359,21 +365,28 @@ namespace tty.Model
                 UserCreditSql user = new UserCreditSql(username);
                 if (user.TryQuery())
                 {
-                    if (user.password == password)
+                    if (user.UserType != UserType.WEJH)
                     {
-                        user.password = newpassword;
-                        //-----修改密码后，所有自动登录方式都会失效-----
-                        user.mobile_credit = "";
-                        user.pc_credit = "";
-                        user.web_credit = "";
-                        user.UpdatePassword();
-                        user.UpdateMobile();
-                        user.UpdatePc();
-                        return new ResponceModel(200, "修改密码成功，请重新登录");
+                        if (user.password == password)
+                        {
+                            user.password = newpassword;
+                            //-----修改密码后，所有自动登录方式都会失效-----
+                            user.mobile_credit = "";
+                            user.pc_credit = "";
+                            user.web_credit = "";
+                            user.UpdatePassword();
+                            user.UpdateMobile();
+                            user.UpdatePc();
+                            return new ResponceModel(200, "修改密码成功，请重新登录");
+                        }
+                        else
+                        {
+                            return new ResponceModel(403, "密码错误");
+                        } 
                     }
                     else
                     {
-                        return new ResponceModel(403, "密码错误");
+                        return new ResponceModel(403, "微精弘用户不能修改密码");
                     }
                 }
                 else
@@ -386,7 +399,7 @@ namespace tty.Model
         {
             if (credit == "" || nickname == "")
             {
-                return new ResponceModel(402, "某些字段为空");
+                return new ResponceModel(403, "用户凭证或昵称为空");
             }
             //说明该用户存在。
             if (CheckUser(credit, out string username))
@@ -398,7 +411,7 @@ namespace tty.Model
             }
             else
             {
-                return new ResponceModel(402, "自动登录已失效，请重新登录");
+                return new ResponceModel(403, "自动登录已失效，请重新登录");
             }
         }
         private static ResponceModel AutoLogin(string credit)

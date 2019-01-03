@@ -56,17 +56,23 @@ namespace tty.Model
         [SqlElement]
         public int state_ycedu { get; set; } = 0;
         [SqlElement]
-        [SqlBinding("pwbind_zfedu")]
+        [SqlBinding("zfedu")]
         [SqlEncrypt]
         public string pwbind_zfedu { get; set; } = "";
         [SqlElement]
+        [SqlBinding("zfedu")]
         public int state_zfedu { get; set; } = 0;
+        //---------------这些是用户的基础信息---------------
+        [SqlElement]
+        [SqlEncrypt]
+        public string portrait { get; set; } = "default::unset.jpg";
         [SqlElement]
         [SqlEncrypt]
         public string email { get; set; } = "";
         [SqlElement]
         [SqlEncrypt]
         public string phone { get; set; } = "";
+        //-------------------------------------------------
         [SqlElement]
         [SqlBinding("linkedcourse")]
         public string linkedcourse { get; set; } = "";
@@ -81,7 +87,7 @@ namespace tty.Model
         string ISqlObject.Table => Config.UserInfoTable;
 
         public void UpdateJh() => this.Update("jh");
-        public void UpdatePwbind_ZfEdu() => this.Update("pwbind_zfedu");
+        public void UpdateZfEdu() => this.Update("zfedu");
         public void UpdateLinkedCourse() => this.Update("linkedcourse");
     }
 
@@ -114,6 +120,10 @@ namespace tty.Model
         public int state { get; set; }
     }
 
+    /// <summary>
+    /// 处理与用户信息相关的信息
+    /// Link::<see cref="Controllers.BindController"/>和<see cref="Controllers.GetInfoController"/>
+    /// </summary>
     public static class UserInfo
     {
         /// <summary>
@@ -151,13 +161,13 @@ namespace tty.Model
                         else if (bindname == "zfedu")
                         {
                             //依赖项为精弘账号
-                            if (GetBindInfo(username, "zfedu").state != 0)
+                            if (GetBindInfo(username, "jh").state != 0)
                             {
                                 return BindZfEdu(username, password);
                             }
                             else
                             {
-                                return new ResponceModel(403, "请重新绑定精弘账号");
+                                return new ResponceModel(403, "你还没有绑定精弘账号");
                             }
                         }
                         else if (bindname == "ycedu")
@@ -192,7 +202,12 @@ namespace tty.Model
             }
 
         }
-
+        /// <summary>
+        /// 获取用户信息控制
+        /// </summary>
+        /// <param name="credit"></param>
+        /// <param name="type"></param>
+        /// <returns></returns>
         internal static ResponceModel GetInfoControl(string credit, string type)
         {
             if (credit == null || type == null)
@@ -203,9 +218,14 @@ namespace tty.Model
             {
                 if (UserCredit.CheckUser(credit, out string username))
                 {
+                    //获取用户的绑定信息。
                     if (type == "bind")
                     {
                         return GetBindInfo(username);
+                    }
+                    else if (type == "base")
+                    {
+                        return GetBaseInfo(username);
                     }
                     else
                     {
@@ -214,7 +234,7 @@ namespace tty.Model
                 }
                 else
                 {
-                    return new ResponceModel(403, "自动登录失败，请重新登录");
+                    return new ResponceModel(403, "自动登录已失效，请重新登录");
                 }
             }
         }
@@ -285,6 +305,21 @@ namespace tty.Model
             return pwBindInfo;
 
         }
+        private static ResponceModel GetBaseInfo(string username)
+        {
+            UserInfoSql userInfo = new UserInfoSql(username);
+            if (userInfo.TryQuery())
+            {
+            }
+
+            return new ResponceModel(200, "获取成功", new //匿名类型
+            {
+                portrait = userInfo.portrait,
+                email = userInfo.email,
+                phone = userInfo.phone,
+            });
+        }
+
         /// <summary>
         /// 绑定精弘，需要依赖<see cref="JhUser"/>和<see cref="JhUserData"/>.
         /// </summary>
@@ -302,21 +337,22 @@ namespace tty.Model
             {
                 var result = JhUser.CheckUser(pid, password);
                 var data = (JhUserData)result.data;
+                UserInfoSql userInfo = new UserInfoSql(username);
                 if (result.code == 200)
                 {
-                    UserInfoSql userInfo = new UserInfoSql(username);
                     userInfo.jhpid = pid;
                     userInfo.pwbind_jh = password;
                     userInfo.state_jh = 2;
                     userInfo.email = data.email;
-                    if (userInfo.Exists())
-                    {
-                        userInfo.UpdateJh();
-                    }
-                    else
-                    {
-                        userInfo.Add();
-                    }
+                }
+                //TODO 绑定失败时候现在暂时不做任何处理。
+                if (userInfo.Exists())
+                {
+                    userInfo.UpdateJh();
+                }
+                else
+                {
+                    userInfo.Add();
                 }
                 return result;
             }
@@ -331,30 +367,34 @@ namespace tty.Model
         {
             if (password == "")
             {
-                return new ResponceModel(403, "密码不能为空");
+                return new ResponceModel(403, "密码为空");
             }
             else
             {
                 UserInfoSql userInfo = new UserInfoSql(username);
+                //MARK 说明数据库中一定有该条记录。
                 if (userInfo.TryQuery())
                 {
-                    if (Course.GetZfCourse(userInfo.jhpid, password).code == 200)
+                    //需要验证精弘账号是否已经失效。
+                    if (JhUser.CheckUser(userInfo.jhpid,userInfo.pwbind_jh).code == 200)
                     {
-                        //SOLVEDBUG pwbind_lib 曾导致绑定出错。
-                        UserInfoSql userInfoSql = new UserInfoSql(username, pwbind_zfedu: password);
-                        if (userInfoSql.Exists())
+                        if (Course.GetZfCourse(userInfo.jhpid, password).code == 200)
                         {
-                            userInfoSql.UpdatePwbind_ZfEdu();
+                            userInfo.pwbind_zfedu = password;
+                            userInfo.state_zfedu = 2;
+                            userInfo.UpdateZfEdu();
+                            return new ResponceModel(200, "绑定正方成功");
                         }
                         else
                         {
-                            userInfoSql.Add();
+                            return new ResponceModel(403, "绑定正方失败");
                         }
-                        return new ResponceModel(200, "绑定正方成功");
                     }
                     else
                     {
-                        return new ResponceModel(403, "绑定正方失败");
+                        userInfo.state_jh = 1;
+                        userInfo.UpdateJh();
+                        return new ResponceModel(403, "请重新绑定精弘账号");
                     }
                 }
                 else
