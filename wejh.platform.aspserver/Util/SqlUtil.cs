@@ -1,14 +1,10 @@
-﻿using System;
+﻿using MySql.Data.MySqlClient;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
-using System.Data.SqlClient;
-using System.Linq;
-using System.Threading.Tasks;
 using wejh.Configs;
-using MySql.Data.MySqlClient;
-using wejh.Model;
-using System.Collections;
 
 namespace wejh.Util
 {
@@ -386,10 +382,21 @@ namespace wejh.Util
     /// <summary>
     /// 表示该属性是查询的主键。
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property,Inherited =true,AllowMultiple =true)]
+    [AttributeUsage(AttributeTargets.Property,Inherited =true,AllowMultiple =false)]
     public sealed class SqlSearchKeyAttribute:Attribute
     {
         public SqlSearchKeyAttribute()
+        {
+        }
+    }
+
+    /// <summary>
+    /// 表示该属性需要加密。
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+    sealed class SqlEncryptAttribute : Attribute
+    {
+        public SqlEncryptAttribute()
         {
         }
     }
@@ -498,7 +505,8 @@ namespace wejh.Util
             {
                 if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name))
                 {
-                    vs.Add(name,TranSql(property.GetValue(obj)));
+                    //加密。
+                    vs.Add(name,GetSqlValue(property.GetValue(obj),property.IsSqlEncrypt()));
                 }
             }
             //生成命令语句。
@@ -519,7 +527,8 @@ namespace wejh.Util
             {
                 if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name) && property.SqlBindingExists(binding))
                 {
-                    vs.Add(name, TranSql(property.GetValue(obj)));
+                    //加密。
+                    vs.Add(name, GetSqlValue(property.GetValue(obj),property.IsSqlEncrypt()));
                 }
             }
             //生成命令语句。
@@ -557,10 +566,11 @@ namespace wejh.Util
         /// <param name="value"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static bool TryQuery<T>(string name,object value, out List<T> result) where T : ISqlObject,new()
+        public static bool TryQuery<T>(string name, object value, out List<T> result) where T : ISqlObject,new()
         {
             T obj = new T();
-            string cmd = $"select * from {obj.Table} {GetWhereExpression(name,value)}";
+            bool isencrypt = obj.GetType().GetProperty(name).IsSqlEncrypt();
+            string cmd = $"select * from {obj.Table} {GetWhereExpression(name,value,isencrypt)}";
             var table = obj.SqlProvider.Query(cmd);
             if (table.Rows.Count == 0)
             {
@@ -592,26 +602,23 @@ namespace wejh.Util
 
         private static string GetWhereExpression(this ISqlObject obj)
         {
-            string name = null; object value = null;
+            string name = null;
+            object value = null;
+            bool isencrypt = false; 
             foreach (var property in obj.GetType().GetProperties())
             {
                 if (property.CanWrite && property.CanRead && property.GetCustomAttribute<SqlSearchKeyAttribute>() != null && property.TryGetSqlElementName(out string name1))
                 {
                     name = name1;
                     value = property.GetValue(obj);
+                    isencrypt = property.IsSqlEncrypt();
+                    break;
                 }
             }
 
             if (name !=null)
             {
-                if (value is string str)
-                {
-                    return $"where {name} like '{str}'";
-                }
-                else
-                {
-                    return $"where {name}={value}";
-                }
+                return GetWhereExpression(name, value, isencrypt);
             }
             else
             {
@@ -619,11 +626,11 @@ namespace wejh.Util
 
             }
         }
-        private static string GetWhereExpression(string name,object value)
+        private static string GetWhereExpression(string name,object value,bool isencrypt)
         {
             if (value is string str)
             {
-                return $"where {name} like '{str}'";
+                return $"where {name} like {GetSqlValue(str,isencrypt)}";
             }
             else
             {
@@ -664,13 +671,33 @@ namespace wejh.Util
             }
             return false;
         }
+        private static bool IsSqlEncrypt(this PropertyInfo obj)
+        {
+            var attribute = obj.GetCustomAttribute<SqlEncryptAttribute>();
+            if (attribute != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private static void SetValue(this ISqlObject obj,DataRow row)
         {
             foreach (var property in obj.GetType().GetProperties())
             {
                 if (property.CanRead && property.CanWrite && property.TryGetSqlElementName(out string name))
                 {
-                    property.SetValue(obj, row[name]);
+                    if (property.PropertyType == typeof(string))
+                    {
+                        bool isencrypt = property.IsSqlEncrypt();
+                        property.SetValue(obj, GetRowValue((string)row[name], isencrypt));
+                    }
+                    else
+                    {
+                        property.SetValue(obj, row[name]);
+                    }
                 }
             }
 
@@ -686,17 +713,47 @@ namespace wejh.Util
             }
         }
 
-        private static string TranSql(object obj)
+        /// <summary>
+        /// 获取处理后的字符串值。
+        /// </summary>
+        /// <param name="obj">待处理的对象</param>
+        /// <param name="isEncrypt">是否加密(仅限字符串类型)</param>
+        /// <returns></returns>
+        private static string GetSqlValue(object obj,bool isEncrypt)
         {
             if (obj is string str)
             {
-                return $"'{str}'";
+                if (isEncrypt)
+                {
+                    return $"'{Config.Aes.Encrypt(str)}'";
+                }
+                else
+                {
+                    return $"'{str}'";
+                }
             }
             else
             {
                 return obj.ToString();
             }
            
+        }
+        /// <summary>
+        /// 获取处理前的字符串值。
+        /// </summary>
+        /// <param name="obj">待处理的对象</param>
+        /// <param name="isDecrypt">是否解密(仅限字符串类型)</param>
+        /// <returns></returns>
+        private static string GetRowValue(string value,bool isDecrypt)
+        {
+            if (isDecrypt)
+            {
+                return Config.Aes.Decrypt(value);
+            }
+            else
+            {
+                return value;
+            }
         }
     }
 }

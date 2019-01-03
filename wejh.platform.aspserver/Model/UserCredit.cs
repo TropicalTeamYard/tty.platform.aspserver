@@ -40,9 +40,11 @@ namespace wejh.Model
         public string username { get; set; }
         [SqlElement]
         [SqlBinding("nickname")]
+        [SqlEncrypt]
         public string nickname { get; set; }
         [SqlElement]
         [SqlBinding("password")]
+        [SqlEncrypt]
         public string password { get; set; }
     }
     public class UserCreditSql : UserCreditModel, ISqlObject
@@ -54,7 +56,7 @@ namespace wejh.Model
         {
             this.username = username;
         }
-        public UserCreditSql(string username, string nickname, string password,UserType userType)
+        public UserCreditSql(string username, string nickname, string password, UserType userType)
         {
             this.username = username;
             this.nickname = nickname;
@@ -64,12 +66,15 @@ namespace wejh.Model
 
         [SqlElement]
         [SqlBinding("web")]
+        [SqlEncrypt]
         public string web_credit { get; set; } = "";
         [SqlElement]
         [SqlBinding("mobile")]
+        [SqlEncrypt]
         public string mobile_credit { get; set; } = "";
         [SqlElement]
         [SqlBinding("pc")]
+        [SqlEncrypt]
         public string pc_credit { get; set; } = "";
         [SqlElement]
         public string usertype { get; set; } = "COMMON";
@@ -79,7 +84,7 @@ namespace wejh.Model
             get => Enum.Parse<UserType>(usertype);
             set => usertype = value.ToString();
         }
-        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
+        SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
         string ISqlObject.Table => Config.UserCreditTable;
 
         public void UpdateNickName() => this.Update("nickname");
@@ -112,16 +117,16 @@ namespace wejh.Model
 
         public UserCreditResult ToUserResultMobile()
         {
-            return new UserCreditResult(username, nickname, mobile_credit,usertype);
+            return new UserCreditResult(username, nickname, mobile_credit, usertype);
         }
         public UserCreditResult ToUserResultPc()
         {
-            return new UserCreditResult(username, nickname, pc_credit,usertype);
+            return new UserCreditResult(username, nickname, pc_credit, usertype);
         }
     }
     public class UserCreditResult
     {
-        public UserCreditResult(string username, string nickname, string credit,string usertype)
+        public UserCreditResult(string username, string nickname, string credit, string usertype)
         {
             this.username = username;
             this.nickname = nickname;
@@ -227,7 +232,7 @@ namespace wejh.Model
             {
                 return new ResponceModel(403, "用户名，密码，或者昵称为空");
             }
-            else if (!CheckUtil.Username(username,UserType.COMMON))
+            else if (!CheckUtil.Username(username, UserType.COMMON))
             {
                 return new ResponceModel(403, "用户名不符合命名规则，用户名应不包含英文特殊字符，长度在2~10位，且不能为纯数字。");
             }
@@ -235,11 +240,11 @@ namespace wejh.Model
             {
                 return new ResponceModel(403, "密码太长或太短。");
             }
-            else if (!CheckUtil.Password(nickname))
+            else if (!CheckUtil.Nickname(nickname))
             {
                 return new ResponceModel(403, "昵称不符合命名规则，昵称长度应该在2~15位。");
             }
-            UserCreditSql user = new UserCreditSql(username, nickname, password,UserType.COMMON);
+            UserCreditSql user = new UserCreditSql(username, nickname, password, UserType.COMMON);
             //-----此处说明该username已经创建-----
             if (user.TryQuery())
             {
@@ -264,7 +269,7 @@ namespace wejh.Model
 
             if (username != "" && password != "")
             {
-                UserCreditSql user = new UserCreditSql(username, "wejh", password,UserType.WEJH);
+                UserCreditSql user = new UserCreditSql(username, "wejh", password, UserType.WEJH);
                 if (user.TryQuery())
                 {
                 }
@@ -367,12 +372,12 @@ namespace wejh.Model
                     }
                     else
                     {
-                        return new ResponceModel(402, "用户密码错误");
+                        return new ResponceModel(403, "密码错误");
                     }
                 }
                 else
                 {
-                    return new ResponceModel(402, "该用户不存在");
+                    return new ResponceModel(403, "该用户不存在");
                 }
             }
         }

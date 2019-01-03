@@ -26,35 +26,49 @@ namespace wejh.Model
         {
         }
 
-        [SqlElement][SqlSearchKey]
+        [SqlElement]
+        [SqlSearchKey]
         public string username { get; set; }
-        [SqlElement][SqlBinding("jh")]
+        [SqlElement]
+        [SqlBinding("jh")]
+        [SqlEncrypt]
         public string jhpid { get; set; } = "";
-        [SqlElement][SqlBinding("jh")]
+        [SqlElement]
+        [SqlBinding("jh")]
+        [SqlEncrypt]
         public string pwbind_jh { get; set; } = "";
-        [SqlElement][SqlBinding("jh")]
+        [SqlElement]
+        [SqlBinding("jh")]
         public int state_jh { get; set; } = 0;
         [SqlElement]
+        [SqlEncrypt]
         public string pwbind_lib { get; set; } = "";
         [SqlElement]
         public int state_lib { get; set; } = 0;
         [SqlElement]
+        [SqlEncrypt]
         public string pwbind_card { get; set; } = "";
         [SqlElement]
         public int state_card { get; set; } = 0;
         [SqlElement]
+        [SqlEncrypt]
         public string pwbind_ycedu { get; set; } = "";
         [SqlElement]
         public int state_ycedu { get; set; } = 0;
-        [SqlElement][SqlBinding("pwbind_zfedu")]
+        [SqlElement]
+        [SqlBinding("pwbind_zfedu")]
+        [SqlEncrypt]
         public string pwbind_zfedu { get; set; } = "";
         [SqlElement]
         public int state_zfedu { get; set; } = 0;
         [SqlElement]
+        [SqlEncrypt]
         public string email { get; set; } = "";
         [SqlElement]
+        [SqlEncrypt]
         public string phone { get; set; } = "";
-        [SqlElement][SqlBinding("linkedcourse")]
+        [SqlElement]
+        [SqlBinding("linkedcourse")]
         public string linkedcourse { get; set; } = "";
 
         public List<string> Linkedcourse
@@ -63,7 +77,7 @@ namespace wejh.Model
             set => linkedcourse = ToolUtil.JoinString('|', value);
         }
 
-        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
+        SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
         string ISqlObject.Table => Config.UserInfoTable;
 
         public void UpdateJh() => this.Update("jh");
@@ -168,7 +182,7 @@ namespace wejh.Model
                     }
                     else
                     {
-                        return new ResponceModel(402, "自动登录失败，请重新登录");
+                        return new ResponceModel(403, "自动登录已失效，请重新登录");
                     }
                 }
             }
@@ -178,6 +192,7 @@ namespace wejh.Model
             }
 
         }
+
         internal static ResponceModel GetInfoControl(string credit, string type)
         {
             if (credit == null || type == null)
@@ -218,13 +233,14 @@ namespace wejh.Model
         /// <returns></returns>
         internal static PwBindInfo GetBindInfo(string username, string bindname)
         {
-
-            PwBindInfo pwBindInfo = new PwBindInfo() { bindname = "", pid = null, password = "", state = 0 };
+            //SOLVED BUG
+            PwBindInfo pwBindInfo = new PwBindInfo() { bindname = bindname, pid = null, password = "", state = 0 };
             UserInfoSql userInfo = new UserInfoSql(username);
             if (userInfo.TryQuery())
             {
                 if (bindname == "jh")
                 {
+                    pwBindInfo.pid = "";
                     if (userInfo.jhpid != null && userInfo.jhpid != "" &&
                         userInfo.pwbind_jh != null && userInfo.jhpid != "")
                     {
@@ -280,7 +296,7 @@ namespace wejh.Model
         {
             if (password == "" || pid == "")
             {
-                return new ResponceModel(402, "学号或密码不能为空");
+                return new ResponceModel(403, "学号或密码为空");
             }
             else
             {

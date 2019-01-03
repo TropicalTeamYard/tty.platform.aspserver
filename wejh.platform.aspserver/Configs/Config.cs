@@ -16,12 +16,14 @@ namespace wejh.Configs
     internal static class Config
     {
         internal static IConfiguration Configuration { get; set; }
-        internal static string Conn => Configuration.GetConnectionString("wejhplatform");
+        internal static string Conn => Configuration.GetConnectionString("ttyplatform");
         internal static MySqlProvider MySqlProvider => new MySqlProvider(new MySqlConnection(Conn));
 
         internal static string UserCreditTable => "usercredit";
         internal static string CourseTable => "course";
         internal static string UserInfoTable => "userinfo";
+        internal static string EncryptKey => "LAVERALSTARDANDMDS7024200345IEVS";
+        internal static AesAddin Aes => new AesAddin(EncryptKey);
 
         internal static TermTimeUni[] GetTimeConfig()
         {

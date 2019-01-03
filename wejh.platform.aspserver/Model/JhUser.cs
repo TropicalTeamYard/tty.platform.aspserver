@@ -70,7 +70,7 @@ namespace wejh.Model
             {
                 JhUserData jhUser = jObject["data"].ToObject<JhUserData>();
 
-                return new ResponceModel(200, "登录成功", jhUser);
+                return new ResponceModel(200, "绑定精弘账号成功", jhUser);
             }
             else
             {
