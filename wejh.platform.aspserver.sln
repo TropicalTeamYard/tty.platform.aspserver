@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "wejh.platform.aspserver", "wejh.platform.aspserver\wejh.platform.aspserver.csproj", "{1E6C3D34-9BAA-4B1B-851F-5D49ED25924A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "tty.platform.aspserver", "wejh.platform.aspserver\tty.platform.aspserver.csproj", "{1E6C3D34-9BAA-4B1B-851F-5D49ED25924A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wejh.test", "wejh.test\wejh.test.csproj", "{E0BA3DA6-080A-46A3-B069-65B1AF65CA7C}"
 EndProject

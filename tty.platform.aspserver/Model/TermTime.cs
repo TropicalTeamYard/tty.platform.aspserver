@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Configs;
+using tty.Configs;
 
-namespace wejh.Model
+namespace tty.Model
 {
     /// <summary>
     /// 储存了学期时间的相关信息，当然，它也能够返回寒暑假的时间。

@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Model;
-using wejh.Util;
+using tty.Model;
+using tty.Util;
 
-namespace wejh
+namespace tty
 {
     public static class Extensions
     {

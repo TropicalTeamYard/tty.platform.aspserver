@@ -4,11 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using wejh.Model;
-using wejh.Util;
+using tty.Model;
+using tty.Util;
 
-namespace wejh.platform.aspserver.Controllers
+namespace tty.Controllers
 {
+
     [Produces("application/json")]
     [Route("api/bind")]
     public class BindController : Controller

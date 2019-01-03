@@ -5,9 +5,9 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using wejh.Configs;
+using tty.Configs;
 
-namespace wejh.Util
+namespace tty.Util
 {
     /// <summary>
     /// <see cref="HttpUtil"/>用于和http服务器进行交互。

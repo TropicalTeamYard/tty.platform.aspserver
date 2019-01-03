@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Configs;
-using wejh.Util;
+using tty.Configs;
+using tty.Util;
 
-namespace wejh.Model
+namespace tty.Model
 {
     public enum UserType
     {
@@ -142,6 +142,7 @@ namespace wejh.Model
 
     /// <summary>
     /// 处理与用户凭证相关的信息，包括[登录]、[自动登录]、[注册]、[改密码]、[改昵称]
+    /// Link::<see cref="Controllers.HelloController"/>
     /// </summary>
     public static class UserCredit
     {

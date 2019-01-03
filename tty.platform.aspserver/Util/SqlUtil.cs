@@ -4,9 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Reflection;
-using wejh.Configs;
+using tty.Configs;
 
-namespace wejh.Util
+namespace tty.Util
 {
     //public static class SqlUtil
     //{

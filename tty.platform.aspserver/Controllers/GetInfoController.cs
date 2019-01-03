@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using wejh.Model;
+using tty.Model;
 
-namespace wejh.platform.aspserver.Controllers
+namespace tty.Controllers
 {
     [Produces("application/json")]
     [Route("api/getinfo")]

@@ -4,9 +4,9 @@ using System.Data;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using wejh.Model;
+using tty.Model;
 
-namespace wejh.Util
+namespace tty.Util
 {
     public static class ToolUtil
     {

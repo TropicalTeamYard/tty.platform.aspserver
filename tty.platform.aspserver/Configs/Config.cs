@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using MySql.Data.MySqlClient;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,10 +7,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Model;
-using wejh.Util;
+using tty.Model;
+using tty.Util;
 
-namespace wejh.Configs
+namespace tty.Configs
 {
     internal static class Config
     {

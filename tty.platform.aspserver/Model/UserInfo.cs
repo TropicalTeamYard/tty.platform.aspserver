@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Configs;
-using wejh.Util;
+using tty.Configs;
+using tty.Util;
 
-namespace wejh.Model
+namespace tty.Model
 {
     public class UserInfoSql : ISqlObject
     {

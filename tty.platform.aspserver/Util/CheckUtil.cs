@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using wejh.Model;
+using tty.Model;
 
-namespace wejh.Util
+namespace tty.Util
 {
     public static class CheckUtil
     {

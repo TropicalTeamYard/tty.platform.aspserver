@@ -9,8 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace wejh
+namespace tty
 {
+
     public class Startup
     {
         public Startup(IConfiguration configuration)
