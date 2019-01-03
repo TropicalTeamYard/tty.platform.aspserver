@@ -334,7 +334,7 @@ namespace tty.Model
                             }
                             else
                             {
-                                //TODO咱不支持网页端的操作。
+                                //TODO 暂不支持网页端的操作。
                                 return null;
                             }
                         }

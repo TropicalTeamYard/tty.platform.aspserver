@@ -9,6 +9,37 @@ using tty.Util;
 
 namespace tty.Model
 {
+    public class UserModel
+    {
+        public UserModel()
+        {
+        }
+
+        public UserModel(string username)
+        {
+            UserCreditSql userCredit = new UserCreditSql(username);
+            if (userCredit.TryQuery())
+            {
+
+            }
+            this.username = username;
+            this.nickname = userCredit.nickname;
+            //TODO
+            this.type = 0;
+        }
+
+        public UserModel(string username, string nickname, int type)
+        {
+            this.username = username;
+            this.nickname = nickname;
+            this.type = type;
+        }
+
+        public string username { get; set; }
+        public string nickname { get; set; }
+        public int type { get; set; }
+    }
+
     public class UserInfoSql : ISqlObject
     {
         public UserInfoSql(string username, string pwbind_lib = "", string pwbind_card = "", string pwbind_ycedu = "", string pwbind_zfedu = "", string jhpid = "", string pwbind_jh = "")
