@@ -25,10 +25,36 @@ namespace tty.interactive
         public Data.UserData UserData { get; private set; } = new Data.UserData();
         private readonly string path = AppDomain.CurrentDomain.BaseDirectory;
 
-        public /*async*/ void Login(string username, string password)
+        public bool Register(string username, string nickname, string password,out string msg)
         {
-            //await Task.Run(() =>
-            //{
+            try
+            {
+                var postdata = $"method=register&username={username}&nickname={nickname}&password={password}";
+                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                    HttpUtil.post(API[APIKey.User], postdata)
+                    );
+
+                msg = result.msg;
+                MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg));
+                if (result.code == 200)
+                {
+                    return true;
+                    
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("register", $"注册失败 {ex.Message}"));
+                msg = "";
+                return false;
+            }
+        }
+        public void Login(string username, string password)
+        {
             try
             {
                 var postdata = $"method=login&username={username}&password={password}&devicetype=pc";
@@ -46,12 +72,80 @@ namespace tty.interactive
                 }
                 MessageInvoked?.Invoke(this, new MessageEventArgs("login", result.msg));
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                MessageInvoked?.Invoke(this, new MessageEventArgs("login", "登录操作失败"));
+                MessageInvoked?.Invoke(this, new MessageEventArgs("login", $"登录操作失败 {ex.Message}"));
             }
-            //}
-            //);
+        }
+        public void AutoLogin()
+        {
+            try
+            {
+                if (UserData.credit != null)
+                {
+                    var postdata = $"method=autologin&credit={UserData.credit}";
+                    var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
+                        HttpUtil.post(API[APIKey.User], postdata)
+                        );
+
+                    if (result.code == 200)
+                    {
+                        UserData.username = result.data.username;
+                        UserData.nickname = result.data.nickname;
+                        UserData.credit = result.data.credit;
+                        UserData.userstate = Data.UserState.Success;
+                    }
+                    else
+                    {
+                        UserData.userstate = Data.UserState.Waring;
+                    }
+
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("autologin", result.msg));
+                }
+                else
+                {
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("autologin", "用户凭证不存在"));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("autologin", $"自动登录失败 {ex.Message}"));
+            }
+
+        }
+        public void ExitLogin()
+        {
+            UserData.username = "";
+            UserData.credit = null;
+            UserData.nickname = "";
+            UserData.userstate =  Data.UserState.NoLogin;
+        }
+        public bool ChangeNickname(string nickname)
+        {
+            try
+            {
+                var postdata = $"method=changenickname&credit={UserData.credit}&nickname={nickname}";
+                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                    HttpUtil.post(API[APIKey.User], postdata)
+                    );
+
+                if (result.code == 200)
+                {
+                    UserData.nickname = nickname;
+                }
+                else
+                {
+                    UserData.userstate = Data.UserState.Waring;
+                }
+
+                MessageInvoked?.Invoke(this, new MessageEventArgs("changenickname", result.msg));
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("changenickname", $"修改昵称失败 {ex.Message}"));
+                return false;
+            }
         }
 
         public void Load()

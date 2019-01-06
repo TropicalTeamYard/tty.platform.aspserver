@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using tty.interactive.Util;
 
 namespace tty.test.Pages
 {
@@ -30,15 +31,38 @@ namespace tty.test.Pages
             //FrameUser.NavigateTo(typeof(UserPage));
         }
 
-        private void ButtonCnn_Click(object sender, RoutedEventArgs e)
+        #region 注销
+        private void BtnExit_Click(object sender, RoutedEventArgs e)
         {
-            //if (TextBoxChangeNickname.Text != "")
-            //{
-            //    App.Cache.ChangeNickname(TextBoxChangeNickname.Text);
-
-            //    TextBoxChangeNickname.Text = "";
-            //}
+            popExit.IsOpen = true;
         }
 
+        private void ButtonExitOK_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.InterAct.ExitLogin();
+        }
+        #endregion
+        #region 修改昵称
+        private void TbkChangeNickname_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (CheckUtil.Nickname(tbkChangeNickname.Text))
+            {
+                btnChangeNickname.IsEnabled = true;
+            }
+            else
+            {
+                btnChangeNickname.IsEnabled = false;
+            }
+        }
+        private void BtnChangeNickname_Click(object sender, RoutedEventArgs e)
+        {
+            if (App.Current.InterAct.ChangeNickname(tbkChangeNickname.Text))
+            {
+                
+            }
+
+            tbkChangeNickname.Text = "";
+        }
+        #endregion
     }
 }

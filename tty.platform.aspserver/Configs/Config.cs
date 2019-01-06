@@ -22,6 +22,7 @@ namespace tty.Configs
         internal static string CourseTable => "course";
         internal static string UserInfoTable => "userinfo";
         internal static string MsgBoardTable => "msgboard";
+        internal static string ChatTable => "chattable";
         internal static string EncryptKey => "LAVERALSTARDANDMDS7024200345IEVS";
         internal static AesAddin Aes => new AesAddin(EncryptKey);
 

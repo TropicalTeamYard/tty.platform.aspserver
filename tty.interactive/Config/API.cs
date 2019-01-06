@@ -12,10 +12,12 @@ namespace tty.interactive.Config
         private Dictionary<string, string> apiDomain = new Dictionary<string, string>()
         {
             { "test", "http://10.128.75.24/"},
-            { "debug", "http:localhost:64208/"}
+            { "debug", "http:localhost:64208/"},
+            { "product","http://39.108.120.239/" }
+
         };
 
-        private string domain => apiDomain["test"];
+        private string domain => apiDomain["product"];
 
         private Dictionary<APIKey, string> apiMap = new Dictionary<APIKey, string>()
         {

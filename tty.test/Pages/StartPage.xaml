@@ -9,15 +9,59 @@
       Title="StartPage">
 
     <Grid>
-        <Grid Width="400" Height="300">
+        <Grid Width="400" Height="400" >
             <Grid.RowDefinitions>
-                <RowDefinition />
-                <RowDefinition />
+                <RowDefinition Height="3*" />
+                <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBox x:Name="TextBox1" Margin="20"/>
-            <PasswordBox x:Name="PasswordBox1" Grid.Row="1" Margin="20"/>
-            <Button x:Name="ButtonLogin" Grid.Row="2" Margin="80,20" FontSize="16" Content="登录" Click="ButtonLogin_Click"/>
+            <Grid x:Name="gridLogin" Visibility="Visible">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="7*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="用户名" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" x:Name="tbx1" Margin="20" TextChanged="TextBox1_TextChanged"/>
+                <TextBlock Grid.Row="1" Text="密码" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <PasswordBox Grid.Column="1" x:Name="PasswordBox1" Grid.Row="1" Margin="20" PasswordChanged="PasswordBox1_PasswordChanged"/>
+
+            </Grid>
+            <Grid x:Name="gridRegister" Visibility="Collapsed">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <ColumnDefinition Width="7*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="用户名" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" x:Name="tbxuser" Margin="20" TextChanged="Tbxuser_TextChanged"/>
+                <TextBlock Grid.Row="1" Text="昵称" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBox Grid.Row="1" Grid.Column="1" x:Name="tbxnick" Margin="20" TextChanged="Tbxuser_TextChanged"/>
+                <TextBlock Grid.Row="2" Text="密码" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="pwb2"  Margin="20" PasswordChanged="Pwb2_PasswordChanged"/>
+                <TextBlock Grid.Row="3" Text="确认密码" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <PasswordBox Grid.Row="3" Grid.Column="1" x:Name="pwb3"  Margin="20" PasswordChanged="Pwb2_PasswordChanged"/>
+
+            </Grid>
+            <TextBlock x:Name="tbkMsg" Grid.Row="1" Grid.ColumnSpan="2" Text="" Margin="20,0,0,0" Foreground="Red" FontWeight="Bold" FontSize="14"/>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <Button x:Name="btn1" Margin="20" FontSize="16" Content="to 注册" Click="Button_Click"/>
+                <Button x:Name="btn2" IsEnabled="False"  Grid.Column="1" Margin="20" FontSize="16" Background="DodgerBlue" Content="登录" Click="ButtonLogin_Click"/>
+            </Grid>
+
         </Grid>
     </Grid>
 </Page>

@@ -45,6 +45,7 @@ namespace tty.test
         {
             App.Current.Window = this;
 
+            App.Current.InterAct.AutoLogin();
             OnStateChanged();
         }
         public void SetMessage(string msg)

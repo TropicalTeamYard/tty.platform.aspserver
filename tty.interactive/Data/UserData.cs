@@ -18,6 +18,7 @@ namespace tty.interactive.Data
         private string _username = "";
         private string _nickname = "";
         private UserState _userstate = UserState.NoLogin;
+        private string _portrait = "default:unset.jpg";
 
         /// <summary>
         /// 用户名(可绑定)
@@ -60,5 +61,7 @@ namespace tty.interactive.Data
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(userstate)));
             }
         }
+
+
     }
 }

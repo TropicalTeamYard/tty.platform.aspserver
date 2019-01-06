@@ -559,6 +559,37 @@ namespace tty.Util
             }
         }
         /// <summary>
+        /// 跟据查询语句查询
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="query">指where后的那一部分</param>
+        /// <param name="result"></param>
+        /// <returns></returns>
+        public static bool TryQuery<T>(string query, out List<T> result) where T : ISqlObject, new()
+        {
+            T obj = new T();
+            string cmd = $"select * from {obj.Table} where {query}";
+            var table = obj.SqlProvider.Query(cmd);
+            if (table.Rows.Count == 0)
+            {
+                result = null;
+                return false;
+            }
+            else
+            {
+                List<T> result1 = new List<T>();
+                foreach (DataRow item in table.Rows)
+                {
+                    T example = new T();
+                    example.SetValue(item);
+                    result1.Add(example);
+                }
+
+                result = result1;
+                return true;
+            }
+        }
+        /// <summary>
         /// 根据键值对查询。
         /// </summary>
         /// <typeparam name="T"></typeparam>
