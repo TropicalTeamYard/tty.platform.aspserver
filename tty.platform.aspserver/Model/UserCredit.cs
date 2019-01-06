@@ -164,6 +164,17 @@ namespace tty.Model
                         return Register(username, password, nickname);
                     }
                 }
+                else if (method == "register2")
+                {
+                    if (password == null || nickname == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return Register2(password, nickname);
+                    }
+                }
                 else if (method == "wejhlogin")
                 {
                     if (username == null || password == null || devicetype == null)
@@ -261,6 +272,56 @@ namespace tty.Model
             }
 
         }
+        private static ResponceModel Register2(string password, string nickname)
+        {
+            if (password == "" || nickname == "")
+            {
+                return new ResponceModel(403, "用户名，密码，或者昵称为空");
+            }
+            else if (!CheckUtil.Password(password))
+            {
+                return new ResponceModel(403, "密码太长或太短。");
+            }
+            else if (!CheckUtil.Nickname(nickname))
+            {
+                return new ResponceModel(403, "昵称不符合命名规则，昵称长度应该在2~15位。");
+            }
+            UserCreditSql user = new UserCreditSql("10086", nickname, password, UserType.COMMON);
+            UserCreditSql userlast = SqlExtension.GetLastRecord<UserCreditSql>();
+            long id = 10086;
+            if (userlast != null)
+            {
+                if (long.TryParse(userlast.username, out long id2))
+                {
+                    id = id2 + 1;
+                }
+
+                user.username = id.ToString();
+                if (user.Exists())
+                {
+                    id--;
+                    while (true)
+                    {
+                        id++;
+                        userlast.username = id.ToString();
+                        if (!SqlExtension.Exists(userlast))
+                        {
+                            break;
+                        }
+                    }
+                }
+            }
+
+            user.username = id.ToString();
+            user.Add();
+
+            return new ResponceModel(200, "注册账户成功", new
+            {
+                user.username,
+                user.nickname,
+                user.usertype
+            });
+        }
 
         /// <summary>
         /// 为了兼容微精弘添加的快速绑定方法。
@@ -269,6 +330,7 @@ namespace tty.Model
         /// <param name="password"></param>
         /// <param name="nickname"></param>
         /// <returns></returns>
+        [Obsolete]
         private static ResponceModel WejhLogin(string username, string password, string devicetype)
         {
             if (username != "" && password != "")
@@ -382,7 +444,7 @@ namespace tty.Model
                         else
                         {
                             return new ResponceModel(403, "密码错误");
-                        } 
+                        }
                     }
                     else
                     {

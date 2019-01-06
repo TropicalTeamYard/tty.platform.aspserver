@@ -230,7 +230,7 @@ namespace tty.Util
         [Obsolete]
         public static bool Exists(IMySqlQueryable obj) => Exists(obj.GetQuerycommand());
     }
-    
+
     [Obsolete("请使用ISqlObject")]
     public interface IMySqlQueryable
     {
@@ -382,8 +382,8 @@ namespace tty.Util
     /// <summary>
     /// 表示该属性是查询的主键。
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property,Inherited =true,AllowMultiple =false)]
-    public sealed class SqlSearchKeyAttribute:Attribute
+    [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
+    public sealed class SqlSearchKeyAttribute : Attribute
     {
         public SqlSearchKeyAttribute()
         {
@@ -412,7 +412,7 @@ namespace tty.Util
         public string Name { get; }
         public string Value { get; }
     }
-    public class NameValueList:IList<NameValue>
+    public class NameValueList : IList<NameValue>
     {
         List<NameValue> vs = new List<NameValue>();
 
@@ -506,11 +506,11 @@ namespace tty.Util
                 if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name))
                 {
                     //加密。
-                    vs.Add(name,GetSqlValue(property.GetValue(obj),property.IsSqlEncrypt()));
+                    vs.Add(name, GetSqlValue(property.GetValue(obj), property.IsSqlEncrypt()));
                 }
             }
             //生成命令语句。
-            string cmd = $"insert into {obj.Table} set  {(string.Join(',',vs.Map((m)=> $"{m.Name}={m.Value}")))}" ;
+            string cmd = $"insert into {obj.Table} set  {(string.Join(',', vs.Map((m) => $"{m.Name}={m.Value}")))}";
 
             obj.SqlProvider.Execute(cmd);
         }
@@ -528,11 +528,11 @@ namespace tty.Util
                 if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name) && property.SqlBindingExists(binding))
                 {
                     //加密。
-                    vs.Add(name, GetSqlValue(property.GetValue(obj),property.IsSqlEncrypt()));
+                    vs.Add(name, GetSqlValue(property.GetValue(obj), property.IsSqlEncrypt()));
                 }
             }
             //生成命令语句。
-            string cmd = $"update {obj.Table} set " + 
+            string cmd = $"update {obj.Table} set " +
                 string.Join(',', vs.Map((m) => $"{m.Name}={m.Value}")) + " " +
                 obj.GetWhereExpression();
             obj.SqlProvider.Execute(cmd);
@@ -565,7 +565,7 @@ namespace tty.Util
         /// <param name="query">指where后的那一部分</param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static bool TryQuery<T>(string query, out List<T> result) where T : ISqlObject, new()
+        public static bool TryQuery<T>(string query, out List<T> result) where T : class, ISqlObject, new()
         {
             T obj = new T();
             string cmd = $"select * from {obj.Table} where {query}";
@@ -597,11 +597,11 @@ namespace tty.Util
         /// <param name="value"></param>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static bool TryQuery<T>(string name, object value, out List<T> result) where T : ISqlObject,new()
+        public static bool TryQuery<T>(string name, object value, out List<T> result) where T : class, ISqlObject, new()
         {
             T obj = new T();
             bool isencrypt = obj.GetType().GetProperty(name).IsSqlEncrypt();
-            string cmd = $"select * from {obj.Table} {GetWhereExpression(name,value,isencrypt)}";
+            string cmd = $"select * from {obj.Table} {GetWhereExpression(name, value, isencrypt)}";
             var table = obj.SqlProvider.Query(cmd);
             if (table.Rows.Count == 0)
             {
@@ -622,20 +622,60 @@ namespace tty.Util
                 return true;
             }
         }
+        public static T GetLastRecord<T>() where T : class, ISqlObject, new()
+        {
+            T obj = new T();
+            string cmd = $"select * from {obj.Table} order by ID DESC limit 1";
+            var table = obj.SqlProvider.Query(cmd);
+            if (table.Rows.Count == 0)
+            {
+                return null;
+            }
+            else
+            {
+                T example = new T();
+                example.SetValue(table.Rows[0]);
+
+                return example;
+            }
+        }
+        public static List<T> GetAllItem<T>() where T : class, ISqlObject, new()
+        {
+            T obj = new T();
+            string cmd = $"select * from {obj.Table} order by ID DESC limit 1";
+            var table = obj.SqlProvider.Query(cmd);
+            if (table.Rows.Count == 0)
+            {
+                return new List<T>();
+            }
+            else
+            {
+                List<T> result1 = new List<T>();
+                foreach (DataRow item in table.Rows)
+                {
+                    T example = new T();
+                    example.SetValue(item);
+                    result1.Add(example);
+                }
+
+                return result1;
+            }
+        }
+
         public static bool Exists(this ISqlObject obj)
         {
             string cmd = $"select * from {obj.Table} {obj.GetWhereExpression()}";
 
             var table = obj.SqlProvider.Query(cmd);
 
-            return table.Rows !=null && table.Rows.Count != 0;
+            return table.Rows != null && table.Rows.Count != 0;
         }
 
         private static string GetWhereExpression(this ISqlObject obj)
         {
             string name = null;
             object value = null;
-            bool isencrypt = false; 
+            bool isencrypt = false;
             foreach (var property in obj.GetType().GetProperties())
             {
                 if (property.CanWrite && property.CanRead && property.GetCustomAttribute<SqlSearchKeyAttribute>() != null && property.TryGetSqlElementName(out string name1))
@@ -647,7 +687,7 @@ namespace tty.Util
                 }
             }
 
-            if (name !=null)
+            if (name != null)
             {
                 return GetWhereExpression(name, value, isencrypt);
             }
@@ -657,11 +697,11 @@ namespace tty.Util
 
             }
         }
-        private static string GetWhereExpression(string name,object value,bool isencrypt)
+        private static string GetWhereExpression(string name, object value, bool isencrypt)
         {
             if (value is string str)
             {
-                return $"where {name} like {GetSqlValue(str,isencrypt)}";
+                return $"where {name} like {GetSqlValue(str, isencrypt)}";
             }
             else
             {
@@ -672,7 +712,7 @@ namespace tty.Util
         {
             var attribute = obj.GetCustomAttribute<SqlElementAttribute>();
             //SOLVED BUG 曾导致程序因为没有SqlElement特性而崩溃。
-            if (attribute!=null)
+            if (attribute != null)
             {
                 if (attribute.Name == null)
                 {
@@ -714,7 +754,7 @@ namespace tty.Util
                 return false;
             }
         }
-        private static void SetValue(this ISqlObject obj,DataRow row)
+        private static void SetValue(this ISqlObject obj, DataRow row)
         {
             foreach (var property in obj.GetType().GetProperties())
             {
@@ -739,7 +779,7 @@ namespace tty.Util
             {
                 if (property.CanRead && property.CanWrite && property.TryGetSqlElementName(out string name))
                 {
-                    property.SetValue(obj,property.GetValue(other));
+                    property.SetValue(obj, property.GetValue(other));
                 }
             }
         }
@@ -750,7 +790,7 @@ namespace tty.Util
         /// <param name="obj">待处理的对象</param>
         /// <param name="isEncrypt">是否加密(仅限字符串类型)</param>
         /// <returns></returns>
-        private static string GetSqlValue(object obj,bool isEncrypt)
+        private static string GetSqlValue(object obj, bool isEncrypt)
         {
             if (obj is string str)
             {
@@ -767,7 +807,7 @@ namespace tty.Util
             {
                 return obj.ToString();
             }
-           
+
         }
         /// <summary>
         /// 获取处理前的字符串值。
@@ -775,7 +815,7 @@ namespace tty.Util
         /// <param name="obj">待处理的对象</param>
         /// <param name="isDecrypt">是否解密(仅限字符串类型)</param>
         /// <returns></returns>
-        private static string GetRowValue(string value,bool isDecrypt)
+        private static string GetRowValue(string value, bool isDecrypt)
         {
             if (isDecrypt)
             {
