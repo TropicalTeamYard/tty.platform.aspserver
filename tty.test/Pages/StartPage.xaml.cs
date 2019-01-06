@@ -27,11 +27,11 @@ namespace tty.test.Pages
 
         private void ButtonLogin_Click(object sender, RoutedEventArgs e)
         {
-            //ButtonLogin.IsEnabled = false;
+            ButtonLogin.IsEnabled = false;
 
-            //App.Cache.Login(TextBox1.Text, PasswordBox1.Password);
+            App.Current.InterAct.Login(TextBox1.Text, PasswordBox1.Password);
 
-            //ButtonLogin.IsEnabled = true;
+            ButtonLogin.IsEnabled = true;
         }
     }
 }

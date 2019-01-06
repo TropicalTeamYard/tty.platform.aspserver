@@ -15,7 +15,7 @@ namespace tty.test
     /// </summary>
     public partial class App : Application
     {
-        public static new App Current = (App)Application.Current;
+        public static new App Current => (App)Application.Current;
 
         public App()
         {
@@ -29,6 +29,7 @@ namespace tty.test
             InterAct.Save();
         }
 
-        InterAct InterAct { get; } 
+        public InterAct InterAct { get; } 
+        public MainWindow Window { get; set; }
     }
 }

@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using tty.interactive.Data;
 
 namespace tty.test
 {
@@ -23,53 +24,60 @@ namespace tty.test
         public MainWindow()
         {
             InitializeComponent();
+            var user = App.Current.InterAct.UserData;
+            user.PropertyChanged += (a, b) =>
+            {
+                if (b.PropertyName == "userstate")
+                {
+                    OnStateChanged();
+                }
+            };
+            App.Current.InterAct.MessageInvoked += (a, b) =>
+            {
+                SetMessage(b.Action + "" + b.Message);
+            };
+
+            tbkUsername.SetBinding(TextBlock.TextProperty, new Binding() { Source = user, Path = new PropertyPath("username") });
+            tbkNickname.SetBinding(TextBlock.TextProperty, new Binding() { Source = user, Path = new PropertyPath("nickname") });
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            //App.Cache = new Data.DataCache();
-            //App.Window = this;
-            
-            //App.Cache.Load();
-            //Console.WriteLine(App.Cache.user.state);
+            App.Current.Window = this;
 
-            //App.Cache.OnStateChanged += (a, b) => OnStateChanged();
-
-            //OnStateChanged();
-            
+            OnStateChanged();
         }
         public void SetMessage(string msg)
         {
-            TextBlockMessage.Text = msg;
+            tbkMsg.Text += msg + "\n";
         }
 
         private void OnStateChanged()
         {
-            //if (IsLoaded)
-            //{
-            //    if (App.Cache.user.state == 0)
-            //    {
-            //        FrameContent.NavigateTo(typeof(Pages.StartPage));
-            //    }
-            //    else 
-            //    {
-            //        FrameContent.NavigateTo(typeof(Pages.MainPage));
-            //    }
-            //    TextBlockUsername.Text = App.Cache.user.username;
-            //    TextBlockNickname.Text = App.Cache.user.nickname;
-            //    if (App.Cache.user.state == 0)
-            //    {
-            //        TextBlockState.Text = "未登录";
-            //    }
-            //    else if (App.Cache.user.state == 1)
-            //    {
-            //        TextBlockState.Text = "账户异常";
-            //    }
-            //    else 
-            //    {
-            //        TextBlockState.Text = "已登录";
-            //    }
-            //}
+            if (IsLoaded)
+            {
+                var user = App.Current.InterAct.UserData;
+                if (user.userstate == UserState.NoLogin)
+                {
+                    contentFrame.NavigateTo(typeof(Pages.StartPage));
+                }
+                else
+                {
+                    contentFrame.NavigateTo(typeof(Pages.MainPage));
+                }
+                if (user.userstate == UserState.NoLogin)
+                {
+                    tbkState.Text = "未登录";
+                }
+                else if (user.userstate == UserState.Waring)
+                {
+                    tbkState.Text = "账户异常";
+                }
+                else
+                {
+                    tbkState.Text = "已登录";
+                }
+            }
 
         }
     }

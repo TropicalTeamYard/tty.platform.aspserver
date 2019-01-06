@@ -25,11 +25,13 @@ namespace tty.interactive
         public Data.UserData UserData { get; private set; } = new Data.UserData();
         private readonly string path = AppDomain.CurrentDomain.BaseDirectory;
 
-        public void Login(string username, string password)
+        public /*async*/ void Login(string username, string password)
         {
+            //await Task.Run(() =>
+            //{
             try
             {
-                var postdata = $"method=quicklogin&username={username}&password={password}&devicetype=pc";
+                var postdata = $"method=login&username={username}&password={password}&devicetype=pc";
                 var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
@@ -48,11 +50,13 @@ namespace tty.interactive
             {
                 MessageInvoked?.Invoke(this, new MessageEventArgs("login", "登录操作失败"));
             }
+            //}
+            //);
         }
 
         public void Load()
         {
-            
+
             try
             {
 
@@ -61,7 +65,7 @@ namespace tty.interactive
             }
             catch (Exception)
             {
-                
+
             }
         }
         public void Save()
@@ -75,14 +79,14 @@ namespace tty.interactive
             }
 
             string data = JsonConvert.SerializeObject(UserData);
-            File.WriteAllText(path + @"\user.json",data);
+            File.WriteAllText(path + @"\user.json", data);
 
         }
     }
 
     public class MessageEventArgs : EventArgs
     {
-        public MessageEventArgs(string action,string message)
+        public MessageEventArgs(string action, string message)
         {
             Action = action;
             Message = message;

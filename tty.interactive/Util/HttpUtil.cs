@@ -65,7 +65,7 @@ namespace tty.interactive.Util
             request.Method = "POST";
             request.ContentType = "application/x-www-form-urlencoded";
             request.ContentLength = data.Length;
-            //request.Timeout = 500;
+            request.Timeout = 2000;
 
             if (token != null && token != "")
             {

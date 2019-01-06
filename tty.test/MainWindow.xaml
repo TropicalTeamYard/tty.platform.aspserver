@@ -19,7 +19,7 @@
             </Grid.RowDefinitions>
             <ScrollViewer HorizontalScrollBarVisibility="Disabled">
                 <Grid Background="Black">
-                    <TextBox x:Name="TextBlockMessage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="DeepSkyBlue" AcceptsReturn="True" Foreground="White" Text="通知区域" />
+                    <TextBox x:Name="tbkMsg" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="DeepSkyBlue" AcceptsReturn="True" Foreground="White" Text="通知区域" />
                 </Grid>
             </ScrollViewer>
             <Grid Grid.Row="1">
@@ -33,13 +33,13 @@
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="账号"/>
-                <TextBlock x:Name="TextBlockUsername" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text=""/>
+                <TextBlock x:Name="tbkUsername" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text=""/>
                 <TextBlock Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Text="昵称"/>
-                <TextBlock x:Name="TextBlockNickname" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock x:Name="tbkNickname" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBlock Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Text="登录状态"/>
-                <TextBlock x:Name="TextBlockState" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <TextBlock x:Name="tbkState" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Grid>
         </Grid>
-        <Frame Grid.Column="1" x:Name="FrameContent" NavigationUIVisibility="Hidden"/>
+        <Frame Grid.Column="1" x:Name="contentFrame" NavigationUIVisibility="Hidden"/>
     </Grid>
 </Window>
