@@ -276,7 +276,7 @@ namespace tty.Model
         {
             if (password == "" || nickname == "")
             {
-                return new ResponceModel(403, "用户名，密码，或者昵称为空");
+                return new ResponceModel(403, "密码/昵称为空");
             }
             else if (!CheckUtil.Password(password))
             {

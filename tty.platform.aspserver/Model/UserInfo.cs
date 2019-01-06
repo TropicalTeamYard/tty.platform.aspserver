@@ -94,9 +94,12 @@ namespace tty.Model
         [SqlBinding("zfedu")]
         public int state_zfedu { get; set; } = 0;
         //---------------这些是用户的基础信息---------------
+
+        #region 图片太大，已经隐藏
         [SqlElement]
-        [SqlEncrypt]
-        public string portrait { get; set; } = "default::unset.jpg";
+        [SqlBinding("portrait")]
+        public byte[] portrait { get; set; } 
+        #endregion
         [SqlElement]
         [SqlEncrypt]
         public string email { get; set; } = "";
