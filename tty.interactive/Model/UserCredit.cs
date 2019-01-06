@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace wejh.test.Model
+namespace tty.interactive.Model
 {
-    class UserCredit
+    internal class UserCredit
     {
         public UserCredit(string username, string nickname, string credit)
         {

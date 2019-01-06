@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace wejh.test.Http
+namespace tty.interactive.Data
 {
-    public static class Method
+    public enum UserState
     {
+        NoLogin,
+        Waring,
+        Success,
     }
 }

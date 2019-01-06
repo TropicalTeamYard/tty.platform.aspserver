@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace wejh.test.Pages
+namespace tty.test.Pages
 {
     /// <summary>
     /// StartPage.xaml 的交互逻辑
@@ -27,11 +27,11 @@ namespace wejh.test.Pages
 
         private void ButtonLogin_Click(object sender, RoutedEventArgs e)
         {
-            ButtonLogin.IsEnabled = false;
+            //ButtonLogin.IsEnabled = false;
 
-            App.Cache.Login(TextBox1.Text, PasswordBox1.Password);
+            //App.Cache.Login(TextBox1.Text, PasswordBox1.Password);
 
-            ButtonLogin.IsEnabled = true;
+            //ButtonLogin.IsEnabled = true;
         }
     }
 }

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace wejh.test.Model
+namespace tty.interactive.Model
 {
-    public class ResponceModel<T>
+    internal class ResponceModel<T>
     {
         public ResponceModel(int code, string msg, T data = default(T))
         {
@@ -20,7 +20,7 @@ namespace wejh.test.Model
 
     }
 
-    public class ResponceModel : ResponceModel<object>
+    internal class ResponceModel : ResponceModel<object>
     {
         public ResponceModel(int code, string msg, object data = null) : base(code, msg, data)
         {

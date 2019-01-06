@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace wejh.test.Http
+namespace tty.interactive.Util
 {
     /// <summary>
     /// <see cref="HttpUtil"/>用于和http服务器进行交互。

@@ -6,8 +6,8 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E0BA3DA6-080A-46A3-B069-65B1AF65CA7C}</ProjectGuid>
     <OutputType>WinExe</OutputType>
-    <RootNamespace>wejh.test</RootNamespace>
-    <AssemblyName>wejh.test</AssemblyName>
+    <RootNamespace>tty.test</RootNamespace>
+    <AssemblyName>tty.test</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -58,10 +58,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Data\IMsgSend.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Http\Method.cs" />
-    <Compile Include="Model\ResponceModel.cs" />
     <Compile Include="Pages\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
@@ -76,8 +73,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Config\API.cs" />
-    <Compile Include="Data\DataCache.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -92,8 +87,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\UserCredit.cs" />
-    <Compile Include="Http\HttpUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -121,6 +114,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\tty.interactive\tty.interactive.csproj">
+      <Project>{9875a05f-4533-4074-b9b2-6a93841a6eb6}</Project>
+      <Name>tty.interactive</Name>
+    </ProjectReference>
     <ProjectReference Include="..\XCore.Component.Settings\XCore.Component.Settings.csproj">
       <Project>{63c5ca77-e8fd-4360-a1da-b3cc0dd2c554}</Project>
       <Name>XCore.Component.Settings</Name>

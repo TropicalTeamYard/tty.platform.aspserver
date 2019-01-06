@@ -13,7 +13,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace wejh.test.Pages
+namespace tty.test.Pages
 {
     /// <summary>
     /// Interaction logic for MainPage.xaml
@@ -32,12 +32,12 @@ namespace wejh.test.Pages
 
         private void ButtonCnn_Click(object sender, RoutedEventArgs e)
         {
-            if (TextBoxChangeNickname.Text != "")
-            {
-                App.Cache.ChangeNickname(TextBoxChangeNickname.Text);
+            //if (TextBoxChangeNickname.Text != "")
+            //{
+            //    App.Cache.ChangeNickname(TextBoxChangeNickname.Text);
 
-                TextBoxChangeNickname.Text = "";
-            }
+            //    TextBoxChangeNickname.Text = "";
+            //}
         }
 
     }
