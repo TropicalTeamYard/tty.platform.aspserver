@@ -31,7 +31,10 @@ namespace tty.Model
         [SqlElement]
         [SqlEncrypt]
         public string comments { get; set; } = "";
-        
+
+        [SqlElement]
+        public byte[] pic { get; set; }
+
         public List<MsgBoardComment> Comment
         {
             get
@@ -56,7 +59,20 @@ namespace tty.Model
         public string content;
     }
 
-    public class MsgBoard
+    public static class MsgBoard
     {
+        public static ResponceModel Control(string method, string credit, int id, int subid, string content, byte[] pic)
+        {
+            if (method == "add")
+            {
+
+            }
+            else
+            {
+                return ResponceModel.GetInstanceInvalid();
+            }
+        }
+
+        public static ResponceModel Add(string credit,)
     }
 }

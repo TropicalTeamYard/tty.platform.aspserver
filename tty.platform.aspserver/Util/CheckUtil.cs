@@ -43,7 +43,7 @@ namespace tty.Util
         }
         public static bool Password(string password)
         {
-            if (password.Length >= 6 && password.Length <= 20)
+            if (password.Length == 32)
             {
                 return true;
             }

@@ -35,7 +35,6 @@ namespace tty.Model
                 return ResponceModel.GetInstanceError(ex);
             }
         }
-
         internal static ResponceModel GetUserInfo(string query)
         {
             UserCreditSql user = new UserCreditSql(query);
@@ -65,7 +64,7 @@ namespace tty.Model
             }
             else
             {
-                return new ResponceModel(403, "不存在该账户");
+                return new ResponceModel(403, "不存在该用户");
             }
         }
     }
