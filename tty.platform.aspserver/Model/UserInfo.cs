@@ -107,6 +107,15 @@ namespace tty.Model
         [SqlEncrypt]
         public string phone { get; set; } = "";
         //-------------------------------------------------
+
+        //----------------这些是用户的扩展信息---------------
+        /// <summary>
+        /// msg权限,0为普通用户,1为管理员用户,2为超级管理员用户。
+        /// </summary>
+        [SqlElement]
+        public int priority_msgboard { get; set; } = 0;
+        
+        //-------------------------------------------------
         [SqlElement]
         [SqlBinding("linkedcourse")]
         public string linkedcourse { get; set; } = "";

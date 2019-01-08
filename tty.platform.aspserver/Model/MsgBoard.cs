@@ -9,12 +9,27 @@ using tty.Util;
 
 namespace tty.Model
 {
-    public class MsgBoardUni : ISqlObject
+    public class MsgUni : ISqlObject
     {
+        public MsgUni()
+        {
+        }
+
+        public MsgUni(string username)
+        {
+            this.username = username;
+        }
+
+        public MsgUni(string username, string content, byte[] pic) : this(username)
+        {
+            this.content = content;
+            this.pic = pic;
+        }
+
         SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
         string ISqlObject.Table => Config.MsgBoardTable;
 
-        [SqlElement]
+        [SqlElement(isreadonly:true)]
         [SqlSearchKey]
         public int id { get; set; }
         [SqlElement]
@@ -35,17 +50,17 @@ namespace tty.Model
         [SqlElement]
         public byte[] pic { get; set; }
 
-        public List<MsgBoardComment> Comment
+        public List<MsgComment> Comment
         {
             get
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<List<MsgBoardComment>>(comments);
+                    return JsonConvert.DeserializeObject<List<MsgComment>>(comments);
                 }
                 catch (Exception)
                 {
-                    return new List<MsgBoardComment>();
+                    return new List<MsgComment>();
                 }
 
             }
@@ -53,7 +68,7 @@ namespace tty.Model
         }
     }
 
-    public class MsgBoardComment
+    public class MsgComment
     {
         public string username;
         public string content;
@@ -63,16 +78,74 @@ namespace tty.Model
     {
         public static ResponceModel Control(string method, string credit, int id, int subid, string content, byte[] pic)
         {
-            if (method == "add")
+            try
             {
-
+                if (method == "add")
+                {
+                    if (credit == null || content == null)
+                    {
+                        return ResponceModel.GetInstanceInvalid();
+                    }
+                    else
+                    {
+                        return Add(credit, content, pic);
+                    }
+                }
+                else
+                {
+                    return ResponceModel.GetInstanceInvalid();
+                }
             }
-            else
+            catch (Exception ex)
             {
-                return ResponceModel.GetInstanceInvalid();
+                return ResponceModel.GetInstanceError(ex);
             }
         }
 
-        public static ResponceModel Add(string credit,)
+        public static ResponceModel Add(string credit, string content, byte[] pic)
+        {
+            if (credit == "")
+            {
+                return new ResponceModel(403, "用户凭证为空");
+            }
+            UserCreditSql user = new UserCreditSql();
+            if (user.TryQuery(credit,out string devicetype))
+            {
+                if (content !="")
+                {
+                    MsgUni msg = new MsgUni(user.username, content, pic)
+                    {
+                        time = DateTime.Now.ToString()
+                    };
+                    msg.Add();
+
+                    msg = SqlExtension.GetLastRecord<MsgUni>();
+
+                    return new ResponceModel(200, "添加成功", new
+                    {
+                        time = DateTime.Now.ToString(),
+                        msg
+                    }); 
+                }
+                else
+                {
+                    return new ResponceModel(403, "留言内容为空");
+                }
+            }
+            else
+            {
+                return new ResponceModel(403, "无效的凭证");
+            }
+        }
+
+        private static int GetPriority(string username)
+        {
+            UserInfoSql userInfo = new UserInfoSql(username);
+            if (userInfo.TryQuery())
+            {
+                return userInfo.priority_msgboard;
+            }
+            return 0;
+        }
     }
 }
