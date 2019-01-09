@@ -565,6 +565,7 @@ namespace tty.Util
                 return true;
             }
         }
+        [Obsolete]
         /// <summary>
         /// 跟据查询语句查询
         /// </summary>
@@ -646,10 +647,10 @@ namespace tty.Util
                 return example;
             }
         }
-        public static List<T> GetAllItem<T>() where T : class, ISqlObject, new()
+        public static List<T> GetLastRecords<T>(int count) where T : class, ISqlObject, new()
         {
             T obj = new T();
-            string cmd = $"select * from {obj.Table} order by ID DESC limit 1";
+            string cmd = $"select * from {obj.Table} order by ID DESC limit {count}";
             var table = obj.SqlProvider.Query(cmd);
             if (table.Rows.Count == 0)
             {

@@ -25,6 +25,10 @@ namespace tty.Model
                 {
                     return GetUserInfo(query);
                 }
+                else if (type == "usermd5")
+                {
+                    return GetUserMD5(query);
+                }
                 else
                 {
                     return ResponceModel.GetInstanceInvalid();
@@ -35,14 +39,14 @@ namespace tty.Model
                 return ResponceModel.GetInstanceError(ex);
             }
         }
-        internal static ResponceModel GetUserInfo(string query)
+        private static bool TryGetUserInfo(string username, out dynamic data)
         {
-            UserCreditSql user = new UserCreditSql(query);
+            UserCreditSql user = new UserCreditSql(username);
             if (user.TryQuery())
             {
                 string portrait = null;
-                
-                UserInfoSql userInfo = new UserInfoSql(query);
+
+                UserInfoSql userInfo = new UserInfoSql(username);
                 if (userInfo.TryQuery())
                 {
                     portrait = Convert.ToBase64String(userInfo.portrait);
@@ -58,9 +62,35 @@ namespace tty.Model
                     user.nickname,
                     user.usertype,
                     portrait = portrait,
+                    premission_msgboard = userInfo.permission_msgboard
                 };
 
-                return new ResponceModel(200, "获取信息成功", result);
+                data = result;
+                return true;
+            }
+            else
+            {
+                data = null;
+                return false;
+            }
+        }
+        internal static ResponceModel GetUserInfo(string query)
+        {
+            if (TryGetUserInfo(query,out dynamic data))
+            {
+                return new ResponceModel(200, "获取信息成功", data);
+            }
+            else
+            {
+                return new ResponceModel(403, "不存在该用户");
+            }
+        }
+        internal static ResponceModel GetUserMD5(string query)
+        {
+            if (TryGetUserInfo(query, out dynamic data))
+            {
+                string jsonstring = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+                return new ResponceModel(200, "获取信息成功", ToolUtil.MD5Encrypt32(jsonstring) );
             }
             else
             {

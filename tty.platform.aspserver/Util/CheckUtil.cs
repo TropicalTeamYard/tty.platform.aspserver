@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using tty.Model;
+using System.Text.RegularExpressions;
 
 namespace tty.Util
 {
@@ -62,6 +63,10 @@ namespace tty.Util
             {
                 return false;
             }
+        }
+        public static bool Email(string email)
+        {
+            return Regex.IsMatch(email, "^[a-z0-9A-Z]+[-|a-z0-9A-Z._]+@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-z]{2,}$");
         }
     }
 }

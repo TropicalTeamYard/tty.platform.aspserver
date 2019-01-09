@@ -13,16 +13,16 @@ namespace tty.platform.aspserver.Controllers
     public class MsgBoardController : Controller
     {
         [HttpGet]
-        public JsonResult Get(string method,string credit,int id,int subid,string content,byte[] pic)
+        public JsonResult Get(string method,string credit,int? id,string time,string content,byte[] pic)
         {
 #if DEBUG
-            return Post(method,credit,id,subid,content,pic);
+            return Post(method,credit,id,time,content,pic);
 #else
             return ResponceModel.GetInstanceBaned();
 #endif
         }
 
-        public JsonResult Post(string method, string credit, int id, int subid, string content, byte[] pic)
+        public JsonResult Post(string method, string credit,int? id, string time, string content, byte[] pic)
         {
             if (credit == null)
             {
@@ -30,7 +30,7 @@ namespace tty.platform.aspserver.Controllers
             }
             else
             {
-                return MsgBoard.Control(method, credit, id, subid, content, pic);
+                return MsgBoard.Control(method, credit,id, time, content, pic);
             }
         }
     }

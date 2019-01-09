@@ -98,13 +98,15 @@ namespace tty.Model
         #region 图片太大，已经隐藏
         [SqlElement]
         [SqlBinding("portrait")]
-        public byte[] portrait { get; set; } 
+        public byte[] portrait { get; set; }
         #endregion
         [SqlElement]
         [SqlEncrypt]
+        [SqlBinding("email")]
         public string email { get; set; } = "";
         [SqlElement]
         [SqlEncrypt]
+        [SqlBinding("phone")]
         public string phone { get; set; } = "";
         //-------------------------------------------------
 
@@ -113,8 +115,8 @@ namespace tty.Model
         /// msg权限,0为普通用户,1为管理员用户,2为超级管理员用户。
         /// </summary>
         [SqlElement]
-        public int priority_msgboard { get; set; } = 0;
-        
+        public int permission_msgboard { get; set; } = 0;
+
         //-------------------------------------------------
         [SqlElement]
         [SqlBinding("linkedcourse")]
@@ -281,6 +283,70 @@ namespace tty.Model
                 }
             }
         }
+        internal static ResponceModel SetInfoControl(string credit, string email, string portrait, string phone)
+        {
+            if (credit == null)
+            {
+                return ResponceModel.GetInstanceInvalid();
+            }
+            else
+            {
+                if (UserCredit.CheckUser(credit, out string username))
+                {
+                    int e_email = 0;
+                    int e_portrait = 0;
+                    int e_phone = 0;
+
+                    if (email != null && email != "")
+                    {
+                        UserInfoSql userinfo = new UserInfoSql(username);
+
+                        //TODO 发送邮箱验证
+                        //说明曾经绑定过此邮箱。
+                        if (CheckUtil.Email(email) && SqlExtension.TryQuery("email", email, out List<UserInfoSql> data))
+                        {
+                            userinfo.email = email;
+                            userinfo.Update("email");
+                            e_email = 2;
+                        }
+                        else
+                        {
+                            e_email = 1;
+                        }
+                    }
+                    else if (portrait != null && portrait != "")
+                    {
+                        try
+                        {
+                            //图片信息
+                            byte[] data = Convert.FromBase64String(portrait);
+                            UserInfoSql userInfo = new UserInfoSql(username);
+                            userInfo.portrait = data;
+                            userInfo.Update("portrait");
+                            e_portrait = 2;
+                        }
+                        catch (Exception)
+                        {
+                            e_portrait = 1;
+                        }
+                    }
+                    else if (phone != null && phone != "")
+                    {
+                    }
+
+                    return new ResponceModel(200, "修改信息成功", new
+                    {
+                        e_email,
+                        e_portrait,
+                        e_phone
+                    });
+                }
+                else
+                {
+                    return new ResponceModel(403, "自动登录已失效，请重新登录");
+                }
+            }
+        }
 
         private static ResponceModel GetBindInfo(string username)
         {
@@ -351,13 +417,27 @@ namespace tty.Model
         private static ResponceModel GetBaseInfo(string username)
         {
             UserInfoSql userInfo = new UserInfoSql(username);
-            if (userInfo.TryQuery())
+            UserCreditSql user = new UserCreditSql(username);
+            userInfo.TryQuery();
+            user.TryQuery();
+
+            string portrait = null;
+
+            if (userInfo.portrait == null)
             {
+                portrait = Config.defaultportrait;
+            }
+            else
+            {
+                portrait = Convert.ToBase64String(userInfo.portrait);
             }
 
             return new ResponceModel(200, "获取成功", new //匿名类型
             {
-                portrait = userInfo.portrait,
+                username = userInfo.username,
+                nickname = user.nickname,
+                usertype = user.usertype,
+                portrait,
                 email = userInfo.email,
                 phone = userInfo.phone,
             });
@@ -419,7 +499,7 @@ namespace tty.Model
                 if (userInfo.TryQuery())
                 {
                     //需要验证精弘账号是否已经失效。
-                    if (JhUser.CheckUser(userInfo.jhpid,userInfo.pwbind_jh).code == 200)
+                    if (JhUser.CheckUser(userInfo.jhpid, userInfo.pwbind_jh).code == 200)
                     {
                         if (Course.GetZfCourse(userInfo.jhpid, password).code == 200)
                         {

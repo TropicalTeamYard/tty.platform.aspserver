@@ -14,9 +14,9 @@ namespace tty.Util
         {
             return Guid.NewGuid().ToString().Replace("-", "");
         }
-        public static string MD5Encrypt32(string password)
+        public static string MD5Encrypt32(string data)
         {
-            string cl = password;
+            string cl = data;
             //string pwd = "";
             MD5 md5 = new MD5CryptoServiceProvider();
             byte[] s = md5.ComputeHash(Encoding.UTF8.GetBytes(cl));
@@ -25,8 +25,6 @@ namespace tty.Util
             {
                 stringBuilder.AppendFormat("{0:X2}", item);
             }
-            
-
             return stringBuilder.ToString();
         }
         public static string JoinString(char seperator, IEnumerable<string> obj)

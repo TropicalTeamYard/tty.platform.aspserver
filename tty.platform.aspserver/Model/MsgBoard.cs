@@ -26,10 +26,17 @@ namespace tty.Model
             this.pic = pic;
         }
 
+        public MsgUni(int id)
+        {
+            this.id = id;
+        }
+
+        [JsonIgnore]
         SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
+        [JsonIgnore]
         string ISqlObject.Table => Config.MsgBoardTable;
 
-        [SqlElement(isreadonly:true)]
+        [SqlElement(isreadonly: true)]
         [SqlSearchKey]
         public int id { get; set; }
         [SqlElement]
@@ -43,57 +50,138 @@ namespace tty.Model
         [SqlElement]
         [SqlEncrypt]
         public string content { get; set; } = "";
-        [SqlElement]
+
+        [SqlElement("comments")]
         [SqlEncrypt]
-        public string comments { get; set; } = "";
+        [SqlBinding("comments")]
+        [JsonIgnore]
+        public string _comments { get; set; } = "";
 
         [SqlElement]
         public byte[] pic { get; set; }
-
-        public List<MsgComment> Comment
+        
+        public MsgComment[] comments
         {
             get
             {
                 try
                 {
-                    return JsonConvert.DeserializeObject<List<MsgComment>>(comments);
+                    var re = JsonConvert.DeserializeObject<MsgComment[]>(_comments);
+                    if (re == null)
+                    {
+                        return new MsgComment[0];
+                    }
+                    else
+                    {
+                        return re;
+                    }
                 }
                 catch (Exception)
                 {
-                    return new List<MsgComment>();
+                    return new MsgComment[0];
                 }
 
             }
-            set => comments = JsonConvert.SerializeObject(comments);
+            set => _comments = JsonConvert.SerializeObject(value);
         }
+
+        public DateTime GetUpdateTime()
+        {
+            DateTime time = DateTime.Parse(this.time);
+            if (comments!=null)
+            {
+                foreach (var item in comments)
+                {
+                    DateTime time2 = DateTime.Parse(item.time);
+                    if (time2 > time)
+                    {
+                        time = time2;
+                    }
+                }
+            }
+            return time;
+        }
+
     }
 
     public class MsgComment
     {
-        public string username;
-        public string content;
+        public MsgComment()
+        {
+        }
+
+        public MsgComment(string username, string time, string content)
+        {
+            this.username = username;
+            this.time = time;
+            this.content = content;
+        }
+
+        public string username { get; set; }
+        public string time { get; set; }
+        public string content { get; set; }
     }
 
     public static class MsgBoard
     {
-        public static ResponceModel Control(string method, string credit, int id, int subid, string content, byte[] pic)
+        public static ResponceModel Control(string method, string credit,int? id, string time, string content, byte[] pic)
         {
             try
             {
-                if (method == "add")
+                if (credit == null)
                 {
-                    if (credit == null || content == null)
-                    {
-                        return ResponceModel.GetInstanceInvalid();
-                    }
-                    else
-                    {
-                        return Add(credit, content, pic);
-                    }
+                    return ResponceModel.GetInstanceInvalid();
+                }
+                else if (credit == "")
+                {
+                    return new ResponceModel(403, "凭证为空");
                 }
                 else
                 {
-                    return ResponceModel.GetInstanceInvalid();
+                    if (UserCredit.CheckUser(credit, out string username))
+                    {
+                        if (method == "add")
+                        {
+                            if (content == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return Add(username, content, pic);
+                            }
+                        }
+                        else if (method == "update")
+                        {
+                            if (time == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return Update(time);
+                            }
+                        }
+                        else if (method == "addcomment")
+                        {
+                            if (id == null || content == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return AddComment(username, id.Value, content);
+                            }
+                        }
+                        else
+                        {
+                            return ResponceModel.GetInstanceInvalid();
+                        }
+                    }
+                    else
+                    {
+                        return new ResponceModel(403, "无效的凭证");
+                    }
                 }
             }
             catch (Exception ex)
@@ -102,39 +190,61 @@ namespace tty.Model
             }
         }
 
-        public static ResponceModel Add(string credit, string content, byte[] pic)
+        public static ResponceModel Add(string username, string content, byte[] pic)
         {
-            if (credit == "")
+            if (content != "")
             {
-                return new ResponceModel(403, "用户凭证为空");
-            }
-            UserCreditSql user = new UserCreditSql();
-            if (user.TryQuery(credit,out string devicetype))
-            {
-                if (content !="")
+                MsgUni msg = new MsgUni(username, content, pic)
                 {
-                    MsgUni msg = new MsgUni(user.username, content, pic)
-                    {
-                        time = DateTime.Now.ToString()
-                    };
-                    msg.Add();
+                    time = DateTime.Now.ToString()
+                };
+                msg.Add();
 
-                    msg = SqlExtension.GetLastRecord<MsgUni>();
+                msg = SqlExtension.GetLastRecord<MsgUni>();
 
-                    return new ResponceModel(200, "添加成功", new
-                    {
-                        time = DateTime.Now.ToString(),
-                        msg
-                    }); 
-                }
-                else
+                return new ResponceModel(200, "添加成功", new
                 {
-                    return new ResponceModel(403, "留言内容为空");
-                }
+                    time = DateTime.Now.ToString(),
+                    msg
+                });
             }
             else
             {
-                return new ResponceModel(403, "无效的凭证");
+                return new ResponceModel(403, "留言内容为空");
+            }
+        }
+        public static ResponceModel Update(string time)
+        {
+            if (DateTime.TryParse(time,out DateTime result))
+            {
+                var data = from item in SqlExtension.GetLastRecords<MsgUni>(1000) where (item.GetUpdateTime() > result) select item;
+
+                return new ResponceModel(200, "获取留言成功",data.ToArray());
+            }
+            else
+            {
+                return new ResponceModel(403, "时间格式不正确");
+            }
+        }
+        public static ResponceModel AddComment(string username, int id, string content)
+        {
+            if (content == "")
+            {
+                return new ResponceModel(403, "评论内容为空");
+            }
+            else
+            {
+                MsgUni msg = new MsgUni(id);
+                if (msg.TryQuery())
+                {
+                    var comments = msg.comments.ToList();
+                    comments.Add(new MsgComment(username, DateTime.Now.ToString(), content));
+                    msg.comments = comments.ToArray();
+                }
+
+                msg.Update("comments");
+
+                return new ResponceModel(200, "添加评论成功", msg);
             }
         }
 
@@ -143,7 +253,7 @@ namespace tty.Model
             UserInfoSql userInfo = new UserInfoSql(username);
             if (userInfo.TryQuery())
             {
-                return userInfo.priority_msgboard;
+                return userInfo.permission_msgboard;
             }
             return 0;
         }
