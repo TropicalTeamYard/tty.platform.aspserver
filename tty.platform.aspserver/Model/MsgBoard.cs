@@ -51,6 +51,14 @@ namespace tty.Model
         [SqlEncrypt]
         public string content { get; set; } = "";
 
+        /// <summary>
+        /// 仅用于表示评论最后的id.
+        /// </summary>
+        [SqlElement]
+        [SqlBinding("comments")]
+        [JsonIgnore]
+        public int commentidlast { get; set; } = 0;
+
         [SqlElement("comments")]
         [SqlEncrypt]
         [SqlBinding("comments")]
@@ -110,13 +118,15 @@ namespace tty.Model
         {
         }
 
-        public MsgComment(string username, string time, string content)
+        public MsgComment(int id, string username, string time, string content)
         {
+            this.id = id;
             this.username = username;
             this.time = time;
             this.content = content;
         }
 
+        public int id { get; set; }
         public string username { get; set; }
         public string time { get; set; }
         public string content { get; set; }
@@ -238,13 +248,17 @@ namespace tty.Model
                 if (msg.TryQuery())
                 {
                     var comments = msg.comments.ToList();
-                    comments.Add(new MsgComment(username, DateTime.Now.ToString(), content));
+                    comments.Add(new MsgComment(++msg.commentidlast, username, DateTime.Now.ToString(), content));
                     msg.comments = comments.ToArray();
+                    msg.Update("comments");
+
+                    return new ResponceModel(200, "添加评论成功", msg);
+                }
+                else
+                {
+                    return new ResponceModel(403, "该留言不存在");
                 }
 
-                msg.Update("comments");
-
-                return new ResponceModel(200, "添加评论成功", msg);
             }
         }
 
