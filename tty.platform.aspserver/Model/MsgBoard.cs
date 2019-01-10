@@ -217,7 +217,7 @@ namespace tty.Model
         {
             if (DateTime.TryParse(time,out DateTime result))
             {
-                var data = from item in SqlExtension.GetLastRecords<MsgUni>(1000) where (item.GetUpdateTime() > result) select item;
+                var data = from item in SqlExtension.GetLastRecords<MsgUni>(200) where (item.GetUpdateTime() > result) select item;
 
                 return new ResponceModel(200, "获取留言成功",data.ToArray());
             }
