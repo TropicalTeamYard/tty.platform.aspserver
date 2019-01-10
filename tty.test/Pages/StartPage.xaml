@@ -42,8 +42,6 @@
                     <ColumnDefinition Width="3*"/>
                     <ColumnDefinition Width="7*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Text="用户名" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" x:Name="tbxuser" Margin="20" TextChanged="Tbxuser_TextChanged"/>
                 <TextBlock Grid.Row="1" Text="昵称" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 <TextBox Grid.Row="1" Grid.Column="1" x:Name="tbxnick" Margin="20" TextChanged="Tbxuser_TextChanged"/>
                 <TextBlock Grid.Row="2" Text="密码" FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center"/>

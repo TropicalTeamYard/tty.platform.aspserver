@@ -1,9 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
+using tty.interactive.Util;
 
 namespace tty.interactive.Data
 {
@@ -18,7 +21,7 @@ namespace tty.interactive.Data
         private string _username = "";
         private string _nickname = "";
         private UserState _userstate = UserState.NoLogin;
-        private string _portrait = "default:unset.jpg";
+        private BitmapImage _portrait = null;
 
         /// <summary>
         /// 用户名(可绑定)
@@ -61,7 +64,21 @@ namespace tty.interactive.Data
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(userstate)));
             }
         }
+        public byte[] portrait
+        {
+            get => ToolUtil.BitmapImageToBytes(_portrait);
+            set => Portrait = ToolUtil.BytesToBitmapImage(value);
+        }
 
-
+        [JsonIgnore]
+        public BitmapImage Portrait
+        {
+            get => _portrait;
+            set
+            {
+                _portrait = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Portrait)));
+            }
+        }
     }
 }

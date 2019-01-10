@@ -283,7 +283,7 @@ namespace tty.Model
                 }
             }
         }
-        internal static ResponceModel SetInfoControl(string credit, string email, string portrait, string phone)
+        internal static ResponceModel SetInfoControl(string credit, string email, byte[] portrait, string phone)
         {
             if (credit == null)
             {
@@ -314,14 +314,12 @@ namespace tty.Model
                             e_email = 1;
                         }
                     }
-                    else if (portrait != null && portrait != "")
+                    else if (portrait != null && portrait.Length > 0)
                     {
                         try
                         {
-                            //图片信息
-                            byte[] data = Convert.FromBase64String(portrait);
                             UserInfoSql userInfo = new UserInfoSql(username);
-                            userInfo.portrait = data;
+                            userInfo.portrait = portrait;
                             userInfo.Update("portrait");
                             e_portrait = 2;
                         }

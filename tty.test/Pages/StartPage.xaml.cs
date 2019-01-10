@@ -36,9 +36,8 @@ namespace tty.test.Pages
             }
             else
             {
-                if (App.Current.InterAct.Register(tbxuser.Text, tbxnick.Text, pwb2.Password,out string msg)) 
+                if (App.Current.InterAct.Register(tbxnick.Text, pwb2.Password,out string msg)) 
                 {
-                    tbxuser.Text = "";
                     tbxnick.Text = "";
                     pwb2.Password = "";
                     pwb3.Password = "";
@@ -55,13 +54,11 @@ namespace tty.test.Pages
             bool isvalid = false;
             if (tbx1.Text != "")
             {
-                isvalid = CheckUtil.Username(tbx1.Text, out string msg);
-                message = msg;
+                isvalid = CheckUtil.Username(tbx1.Text);
             }
             else
             {
                 btn2.IsEnabled = false;
-                message = "";
             }
             if (PasswordBox1.Password == "")
             {
@@ -81,23 +78,13 @@ namespace tty.test.Pages
             var message = "";
             var isvalid = true;
 
-            if (tbxuser.Text == "" || tbxnick.Text == "" || pwb2.Password == "" || pwb3.Password == "")
+            if (tbxnick.Text == "" || pwb2.Password == "" || pwb3.Password == "")
             {
                 tbkMsg.Text = "";
                 btn2.IsEnabled = false;
             }
             else
             {
-                if (long.TryParse(tbxuser.Text, out long result))
-                {
-                    isvalid = false;
-                    message += "注册的用户名不能为纯数字";
-                }
-                else if (!CheckUtil.Username(tbxuser.Text, out string msg))
-                {
-                    isvalid = false;
-                    message += msg + "\n";
-                }
 
                 if (!CheckUtil.Nickname(tbxnick.Text))
                 {

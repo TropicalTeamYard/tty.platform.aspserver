@@ -14,7 +14,7 @@
                 <Grid Background="#FFE5E5E5">
                     <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="修改昵称" VerticalAlignment="Top" Margin="21,16,0,0"/>
                     <TextBox x:Name="tbkChangeNickname" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120" Margin="174,10,0,0" TextChanged="TbkChangeNickname_TextChanged"/>
-                    <Button x:Name="btnChangeNickname" IsEnabled="False" Content="修改" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="314,14,0,0" Click="BtnChangeNickname_Click"/>
+                    <Button x:Name="btnChangeNickname" IsEnabled="False" Content="修改昵称" HorizontalAlignment="Left" VerticalAlignment="Top" Width="75" Margin="314,14,0,0" Click="BtnChangeNickname_Click"/>
                     <Button x:Name="btnExit" Foreground="White" Background="DarkRed" Content="注销" HorizontalAlignment="Left" Height="19" Margin="21,293,0,0" VerticalAlignment="Top" Width="75" Click="BtnExit_Click"/>
                     <Popup x:Name="popExit" StaysOpen="False" PlacementTarget="{Binding ElementName=btnExit}">
                         <Grid Height="40" Width="200" Background="Yellow">
@@ -26,6 +26,13 @@
                             <Button  Grid.Column="1" Margin="0,10" Content="确认" Background="Red" Foreground="White" Click="ButtonExitOK_Click"></Button>
                         </Grid>
                     </Popup>
+                    <TextBlock HorizontalAlignment="Left" TextWrapping="Wrap" Text="修改密码" VerticalAlignment="Top" Margin="21,47,0,0"/>
+                    <PasswordBox x:Name="pwb1" HorizontalAlignment="Left" Height="20" Margin="174,47,0,0" VerticalAlignment="Top" Width="120" PasswordChanged="pwb_PasswordChanged"/>
+                    <Button x:Name="btnChangePw" Content="修改密码" IsEnabled="False" HorizontalAlignment="Left" Height="22" Margin="314,87,0,0" VerticalAlignment="Top" Width="75" Click="BtnChangePw_Click"/>
+                    <PasswordBox x:Name="pwb2" HorizontalAlignment="Left" Height="22" Margin="174,87,0,0" VerticalAlignment="Top" Width="120" PasswordChanged="pwb_PasswordChanged"/>
+                    <Image x:Name="imgPortrait" HorizontalAlignment="Left" Height="72" Margin="103,134,0,0" VerticalAlignment="Top" Width="72"/>
+                    <TextBlock HorizontalAlignment="Left" Height="20" Margin="21,134,0,0" TextWrapping="Wrap" Text="头像" VerticalAlignment="Top" Width="61"/>
+                    <Button Content="修改头像" HorizontalAlignment="Left" Height="20" Margin="314,134,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="课表">

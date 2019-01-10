@@ -1,10 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Windows.Media.Imaging;
 using tty.interactive.Config;
 using tty.interactive.Model;
 using tty.interactive.Util;
@@ -25,21 +22,21 @@ namespace tty.interactive
         public Data.UserData UserData { get; private set; } = new Data.UserData();
         private readonly string path = AppDomain.CurrentDomain.BaseDirectory;
 
-        public bool Register(string username, string nickname, string password,out string msg)
+        public bool Register(string nickname, string password, out string msg)
         {
             try
             {
-                var postdata = $"method=register&username={username}&nickname={nickname}&password={password}";
-                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                var postdata = $"method=register2&nickname={nickname}&password={ToolUtil.MD5Encrypt32(password)}";
+                var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
 
-                msg = result.msg;
-                MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg));
+                msg = result.msg + "注册账号为:" + result.data.username;
+                MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg + "注册账号为:" + result.data.username));
                 if (result.code == 200)
                 {
                     return true;
-                    
+
                 }
                 else
                 {
@@ -57,7 +54,7 @@ namespace tty.interactive
         {
             try
             {
-                var postdata = $"method=login&username={username}&password={password}&devicetype=pc";
+                var postdata = $"method=login&username={username}&password={ToolUtil.MD5Encrypt32(password)}&devicetype=pc";
                 var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
@@ -118,7 +115,7 @@ namespace tty.interactive
             UserData.username = "";
             UserData.credit = null;
             UserData.nickname = "";
-            UserData.userstate =  Data.UserState.NoLogin;
+            UserData.userstate = Data.UserState.NoLogin;
         }
         public bool ChangeNickname(string nickname)
         {
@@ -144,6 +141,63 @@ namespace tty.interactive
             catch (Exception ex)
             {
                 MessageInvoked?.Invoke(this, new MessageEventArgs("changenickname", $"修改昵称失败 {ex.Message}"));
+                return false;
+            }
+        }
+        public bool ChangePw(string password, string newpassword)
+        {
+            try
+            {
+                var postdata = $"method=changepw&username={UserData.username}&password={ToolUtil.MD5Encrypt32(password)}&newpassword={ToolUtil.MD5Encrypt32(newpassword)}";
+
+                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                    HttpUtil.post(API[APIKey.User], postdata)
+                    );
+
+                if (result.code == 200)
+                {
+                    UserData.credit = "";
+                    UserData.userstate = Data.UserState.NoLogin;
+
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("changpw", $"修改密码成功，请重新登录"));
+
+                    return true;
+                }
+                else
+                {
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("changpw", result.msg));
+                    return false;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("changpw", $"修改密码失败 {ex.Message}"));
+                return false;
+            }
+        }
+        public bool ChangePortrait(BitmapImage portrait)
+        {
+            try
+            {
+                var postdata = $"credit={UserData.credit}&portrait={Convert.ToBase64String(ToolUtil.BitmapImageToBytes(portrait))}";
+
+                var result = JsonConvert.DeserializeObject<ResponceModel<_E_Result>>(HttpUtil.post(API[APIKey.SetInfo], postdata));
+
+                if (result.code == 200 && result.data.e_portrait == 2)
+                {
+                    UserData.Portrait = portrait;
+
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("changeportrait", "修改用户头像成功"));
+                    return true;
+                }
+                MessageInvoked?.Invoke(this, new MessageEventArgs("changportrait", result.msg));
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("changeportrait", $"修改用户头像失败 {ex.Message}"));
+
                 return false;
             }
         }

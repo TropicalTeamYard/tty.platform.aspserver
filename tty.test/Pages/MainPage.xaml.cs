@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,7 +29,15 @@ namespace tty.test.Pages
 
         private void Page_Loaded(object sender, RoutedEventArgs e)
         {
+            OnPortraitChanged();
             //FrameUser.NavigateTo(typeof(UserPage));
+            App.Current.InterAct.UserData.PropertyChanged += (a, b) => 
+            {
+                if (b.PropertyName == "portrait")
+                {
+                    OnPortraitChanged();
+                }
+            };
         }
 
         #region 注销
@@ -64,5 +73,59 @@ namespace tty.test.Pages
             tbkChangeNickname.Text = "";
         }
         #endregion
+        #region 修改密码
+        private void pwb_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (CheckUtil.Password(pwb1.Password) && CheckUtil.Password(pwb2.Password))
+            {
+                btnChangePw.IsEnabled = true;
+            }
+            else
+            {
+                btnChangePw.IsEnabled = false;
+            }
+        }
+
+        private void BtnChangePw_Click(object sender, RoutedEventArgs e)
+        {
+            btnChangePw.IsEnabled = false;
+            App.Current.InterAct.ChangePw(pwb1.Password, pwb2.Password);
+            btnChangePw.IsEnabled = true;
+
+            pwb1.Password = "";
+            pwb2.Password = "";
+        }
+        #endregion
+        #region 用户头像
+        private void OnPortraitChanged()
+        {
+            BitmapImage bitmap = new BitmapImage();
+            if (App.Current.InterAct.UserData.Portrait == null)
+            {
+                bitmap = new BitmapImage(new Uri("pack://application:,,,/Assets/unset.jpg"));
+            }
+            else
+            {
+                bitmap = App.Current.InterAct.UserData.Portrait;
+            }
+
+            imgPortrait.Source = bitmap;
+        }
+
+        #endregion
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new OpenFileDialog();
+            dialog.Filter = ".jpg|*.jpg|.png|*.png|.jpeg|*.jpeg";
+            if (dialog.ShowDialog() == false) return;
+            string _fileName = dialog.FileName;
+            //初始化图片
+            BitmapImage tempImage = new BitmapImage();
+            tempImage.BeginInit();
+            tempImage.UriSource = new Uri(_fileName, UriKind.RelativeOrAbsolute);
+            tempImage.EndInit();
+
+            App.Current.InterAct.ChangePortrait(tempImage);
+        }
     }
 }

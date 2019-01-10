@@ -8,44 +8,21 @@ namespace tty.interactive.Util
 {
     public static class CheckUtil
     {
-        public static bool Username(string username, out string msg)
+        public static bool Username(string username)
         {
-            if (long.TryParse(username, out long re))
+            if (username.Length >= 5)
             {
-                msg = "你使用的是精弘账号";
-                return true;
-            }
-            else if (username.Length >= 2 && username.Length <= 10)
-            {
-                string except = @"!@#$%^&*()_+-=,./\[]{}:;'<>?`~";
-                bool flag = true;
-                foreach (var item in except)
+                if (long.TryParse(username, out long re))
                 {
-                    if (username.Contains(item))
-                    {
-                        flag = false;
-                        break;
-                    }
-                }
-
-                if (flag == false)
-                {
-                    msg = "包含非法字符(英文特殊字符)";
+                    return true;
                 }
                 else
                 {
-                    msg = "";
+                    return false;
                 }
-                return flag;
-            }
-            else if(username.Length < 2)
-            {
-                msg = "账号过短";
-                return false;
             }
             else
             {
-                msg = "账号过长";
                 return false;
             }
         }
