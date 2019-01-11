@@ -12,6 +12,7 @@ using tty.Util;
 
 namespace tty.Configs
 {
+    [Obsolete("请改用App.Current.Configuration")]
     internal static class Config
     {
         internal static IConfiguration Configuration { get; set; }

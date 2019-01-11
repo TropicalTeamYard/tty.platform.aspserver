@@ -32,9 +32,9 @@ namespace tty.Model
         }
 
         [JsonIgnore]
-        SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
+        SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; // Config.MySqlProvider;
         [JsonIgnore]
-        string ISqlObject.Table => Config.MsgBoardTable;
+        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.MsgBoard];// Config.MsgBoardTable;
 
         [SqlElement(isreadonly: true)]
         [SqlSearchKey]

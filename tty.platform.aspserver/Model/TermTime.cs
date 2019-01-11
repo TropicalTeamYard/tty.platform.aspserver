@@ -43,7 +43,7 @@ namespace tty.Model
     {
         public static TermTimeUni Get()
         {
-            TermTimeUni[] terms = Config.GetTimeConfig();
+            TermTimeUni[] terms = App.Current.Configuration.TermTimeUnis;
 
             var x = (from item in terms orderby item.begin select item).ToArray();
 

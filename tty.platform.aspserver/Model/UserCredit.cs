@@ -86,8 +86,8 @@ namespace tty.Model
             get => Enum.Parse<UserType>(usertype);
             set => usertype = value.ToString();
         }
-        SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
-        string ISqlObject.Table => Config.UserCreditTable;
+        SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; // Config.MySqlProvider;
+        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.UserCredit]; // Config.UserCreditTable;
 
         public void UpdateUserType() => this.Update("usertype");
         public void UpdateNickName() => this.Update("nickname");
@@ -175,17 +175,17 @@ namespace tty.Model
                         return Register2(password, nickname);
                     }
                 }
-                else if (method == "wejhlogin")
-                {
-                    if (username == null || password == null || devicetype == null)
-                    {
-                        return ResponceModel.GetInstanceInvalid();
-                    }
-                    else
-                    {
-                        return WejhLogin(username, password, devicetype);
-                    }
-                }
+                //else if (method == "wejhlogin")
+                //{
+                //    if (username == null || password == null || devicetype == null)
+                //    {
+                //        return ResponceModel.GetInstanceInvalid();
+                //    }
+                //    else
+                //    {
+                //        return WejhLogin(username, password, devicetype);
+                //    }
+                //}
                 else if (method == "login")
                 {
                     if (username == null || password == null || devicetype == null)

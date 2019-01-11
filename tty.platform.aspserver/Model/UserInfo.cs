@@ -14,6 +14,7 @@ namespace tty.Model
 
     public class UserInfoSql : ISqlObject
     {
+       
         public UserInfoSql(string username, string pwbind_lib = "", string pwbind_card = "", string pwbind_ycedu = "", string pwbind_zfedu = "", string jhpid = "", string pwbind_jh = "")
         {
             this.username = username;
@@ -72,7 +73,7 @@ namespace tty.Model
         //[SqlBinding("portrait")]
         public byte[] portrait { get; set; }
 
-        private string portriaitFileName => Config.PortraitCache + $"\\{username}_128_128.jpg";
+        private string portriaitFileName => App.Current.Configuration.PortraitCache + $"\\{username}_128_128.jpg";
         #endregion
         [SqlElement]
         [SqlEncrypt]
@@ -103,8 +104,8 @@ namespace tty.Model
             set => linkedcourse = ToolUtil.JoinString('|', value);
         }
 
-        SqlBaseProvider ISqlObject.SqlProvider => Config.MySqlProvider;
-        string ISqlObject.Table => Config.UserInfoTable;
+        SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; // Config.MySqlProvider;
+        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.UserInfo]; //Config.UserInfoTable;
 
         public void UpdateJh() => this.Update("jh");
         public void UpdateZfEdu() => this.Update("zfedu");
@@ -120,9 +121,9 @@ namespace tty.Model
         }
         public void SavePortrait()
         {
-            if (!Directory.Exists(Config.PortraitCache))
+            if (!Directory.Exists(App.Current.Configuration .PortraitCache))
             {
-                Directory.CreateDirectory(Config.PortraitCache);
+                Directory.CreateDirectory(App.Current.Configuration.PortraitCache /*Config.PortraitCache*/);
             }
 
             File.WriteAllBytes(portriaitFileName, portrait);
@@ -421,7 +422,7 @@ namespace tty.Model
 
                 if (userInfo.portrait == null)
                 {
-                    portrait = Config.defaultportrait;
+                    portrait = App.Current.Configuration.DefaultPortrait;// Config.defaultportrait;
                 }
                 else
                 {

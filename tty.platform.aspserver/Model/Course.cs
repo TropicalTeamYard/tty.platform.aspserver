@@ -72,8 +72,8 @@ namespace tty.Model
         [SqlElement]
         public int classhour { get; set; }
 
-        SqlBaseProvider ISqlObject.SqlProvider { get; } = Config.MySqlProvider;
-        string ISqlObject.Table => Config.CourseTable;
+        SqlBaseProvider ISqlObject.SqlProvider { get; } = App.Current.Configuration.MySqlProvider;//  Config.MySqlProvider;
+        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.Course];// Config.CourseTable;
     }
     /// <summary>
     /// <see cref="CourseUni"/>的依赖数据。

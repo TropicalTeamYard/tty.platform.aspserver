@@ -817,7 +817,7 @@ namespace tty.Util
             {
                 if (isEncrypt)
                 {
-                    return $"'{Config.Aes.Encrypt(str)}'";
+                    return $"'{App.Current.Configuration.AesAddin.Encrypt(str)}'";
                 }
                 else
                 {
@@ -847,7 +847,7 @@ namespace tty.Util
         {
             if (isDecrypt)
             {
-                return Config.Aes.Decrypt(value);
+                return App.Current.Configuration.AesAddin.Decrypt(value);
             }
             else
             {

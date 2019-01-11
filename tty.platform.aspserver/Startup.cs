@@ -11,13 +11,17 @@ using Microsoft.Extensions.Options;
 
 namespace tty
 {
-
     public class Startup
     {
+        private App _app;
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-            Configs. Config.Configuration = configuration;
+
+            _app = new App(configuration);
+            
+            //Configs.Config.Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -26,6 +30,7 @@ namespace tty
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
