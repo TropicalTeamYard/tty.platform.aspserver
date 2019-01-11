@@ -33,14 +33,17 @@ namespace tty.interactive
                     );
 
                 msg = result.msg + "注册账号为:" + result.data.username;
-                MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg + "注册账号为:" + result.data.username));
+
                 if (result.code == 200)
                 {
-                    return true;
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg + "注册账号为:" + result.data.username));
 
+                    return true;
                 }
                 else
                 {
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("register", result.msg));
+
                     return false;
                 }
             }
@@ -69,6 +72,8 @@ namespace tty.interactive
                     UserData.userstate = Data.UserState.Success;
                 }
                 MessageInvoked?.Invoke(this, new MessageEventArgs("login", result.msg));
+
+                UpdateUserInfo();
             }
             catch (Exception ex)
             {
@@ -79,13 +84,24 @@ namespace tty.interactive
         {
             try
             {
-                var postdata = $"type=base&credit{UserData.credit}";
+                var postdata = $"type=base&credit={UserData.credit}";
                 var result = JsonConvert.DeserializeObject<ResponceModel<_UserInfo>>(HttpUtil.post(API[APIKey.GetInfo], postdata));
 
-                if (true)
+                if (result.code == 200)
                 {
+                    // TODO 正在修改
+                    UserData.nickname = result.data.nickname;
+                    UserData.Portrait = ToolUtil.BytesToBitmapImage(ToolUtil.HexToBytes(result.data.portrait));
+                    UserData.email = result.data.email;
+                    UserData.phone = result.data.phone;
 
+                    UserData.userstate = Data.UserState.Success;
                 }
+                else
+                {
+                    UserData.userstate = Data.UserState.Waring;
+                }
+                MessageInvoked?.Invoke(this, new MessageEventArgs("getinfo_base", result.msg));
             }
             catch (Exception ex)
             {
@@ -148,6 +164,7 @@ namespace tty.interactive
 
                 if (result.code == 200)
                 {
+                    UserData.userstate = Data.UserState.Success;
                     UserData.nickname = nickname;
                 }
                 else
@@ -206,10 +223,12 @@ namespace tty.interactive
                 if (result.code == 200 && result.data.e_portrait == 2)
                 {
                     UserData.Portrait = portrait;
-
+                    UserData.userstate = Data.UserState.Success;
                     MessageInvoked?.Invoke(this, new MessageEventArgs("changeportrait", "修改用户头像成功"));
                     return true;
                 }
+
+                UserData.userstate = Data.UserState.Waring;
                 MessageInvoked?.Invoke(this, new MessageEventArgs("changportrait", result.msg));
 
                 return false;

@@ -11,36 +11,6 @@ using tty.Util;
 
 namespace tty.Model
 {
-    public class UserModel
-    {
-        public UserModel()
-        {
-        }
-
-        public UserModel(string username)
-        {
-            UserCreditSql userCredit = new UserCreditSql(username);
-            if (userCredit.TryQuery())
-            {
-
-            }
-            this.username = username;
-            this.nickname = userCredit.nickname;
-            //TODO
-            this.type = 0;
-        }
-
-        public UserModel(string username, string nickname, int type)
-        {
-            this.username = username;
-            this.nickname = nickname;
-            this.type = type;
-        }
-
-        public string username { get; set; }
-        public string nickname { get; set; }
-        public int type { get; set; }
-    }
 
     public class UserInfoSql : ISqlObject
     {
@@ -240,17 +210,17 @@ namespace tty.Model
                         }
                         else if (bindname == "ycedu")
                         {
-                            //TODO
+                            //TODO 原创绑定正在开发
                             return new ResponceModel(500, "原创绑定正在开发");
                         }
                         else if (bindname == "lib")
                         {
-                            //TODO
+                            //TODO 图书馆绑定正在开发
                             return new ResponceModel(500, "图书馆绑定正在开发");
                         }
                         else if (bindname == "card")
                         {
-                            //TODO
+                            //TODO 校园卡绑定正在开发
                             return new ResponceModel(500, "校园卡绑定正在开发");
                         }
                         else
@@ -347,7 +317,7 @@ namespace tty.Model
 
                             e_portrait = 2;
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             e_portrait = 1;
                         }

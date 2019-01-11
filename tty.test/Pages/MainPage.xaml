@@ -38,6 +38,42 @@
             <TabItem Header="课表">
                 <Grid Background="#FFE5E5E5"/>
             </TabItem>
+            <TabItem Header="留言">
+                <Grid Background="#FFE5E5E5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition />
+                        <RowDefinition Height="100"/>
+                    </Grid.RowDefinitions>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="150"/>
+                        </Grid.ColumnDefinitions>
+                        <ScrollViewer>
+                            <StackPanel Orientation="Vertical">
+                                
+                            </StackPanel>
+                        </ScrollViewer>
+                        <Grid Grid.Column="1">
+                            
+                        </Grid>
+                    </Grid>
+                    <Grid Grid.Row="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="200"/>
+                            <ColumnDefinition />
+                            <ColumnDefinition Width="150"/>
+                        </Grid.ColumnDefinitions>
+                        <Image/>
+                        <TextBox x:Name="tbxSend" Grid.Column="1" AcceptsReturn="True" AcceptsTab="True"/>
+                        <Grid Grid.Column="2">
+                            <Button Content="设置图片" HorizontalAlignment="Left" Height="20" Margin="35,21,0,0" VerticalAlignment="Top" Width="82"/>
+                            <Button Content="发送" HorizontalAlignment="Left" Height="20" Margin="35,61,0,0" VerticalAlignment="Top" Width="82"/>
+
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </TabItem>
         </TabControl>
 
     </Grid>

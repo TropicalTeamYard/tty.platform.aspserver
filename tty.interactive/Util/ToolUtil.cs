@@ -82,7 +82,7 @@ namespace tty.interactive.Util
             return hex;
         }
 
-        public static byte[] HexToByte(string hex)
+        public static byte[] HexToBytes(string hex)
         {
             var inputByteArray = new byte[hex.Length / 2];
             for (var x = 0; x < inputByteArray.Length; x++)
