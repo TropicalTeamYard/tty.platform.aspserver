@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Text;
 using System.Windows.Media.Imaging;
 using tty.interactive.Config;
 using tty.interactive.Model;
@@ -27,7 +28,7 @@ namespace tty.interactive
             try
             {
                 var postdata = $"method=register2&nickname={nickname}&password={ToolUtil.MD5Encrypt32(password)}";
-                var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
+                var result = JsonConvert.DeserializeObject<ResponceModel<_UserCredit>>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
 
@@ -55,7 +56,7 @@ namespace tty.interactive
             try
             {
                 var postdata = $"method=login&username={username}&password={ToolUtil.MD5Encrypt32(password)}&devicetype=pc";
-                var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
+                var result = JsonConvert.DeserializeObject<ResponceModel<_UserCredit>>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
                 //var data = result.data;
@@ -74,6 +75,24 @@ namespace tty.interactive
                 MessageInvoked?.Invoke(this, new MessageEventArgs("login", $"登录操作失败 {ex.Message}"));
             }
         }
+        public void UpdateUserInfo()
+        {
+            try
+            {
+                var postdata = $"type=base&credit{UserData.credit}";
+                var result = JsonConvert.DeserializeObject<ResponceModel<_UserInfo>>(HttpUtil.post(API[APIKey.GetInfo], postdata));
+
+                if (true)
+                {
+
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("getinfo_base", $"获取用户基础信息失败 {ex.Message}"));
+            }
+        }
+
         public void AutoLogin()
         {
             try
@@ -81,7 +100,7 @@ namespace tty.interactive
                 if (UserData.credit != null)
                 {
                     var postdata = $"method=autologin&credit={UserData.credit}";
-                    var result = JsonConvert.DeserializeObject<ResponceModel<UserCredit>>(
+                    var result = JsonConvert.DeserializeObject<ResponceModel<_UserCredit>>(
                         HttpUtil.post(API[APIKey.User], postdata)
                         );
 
@@ -115,6 +134,7 @@ namespace tty.interactive
             UserData.username = "";
             UserData.credit = null;
             UserData.nickname = "";
+            UserData.portrait = null;
             UserData.userstate = Data.UserState.NoLogin;
         }
         public bool ChangeNickname(string nickname)
@@ -122,7 +142,7 @@ namespace tty.interactive
             try
             {
                 var postdata = $"method=changenickname&credit={UserData.credit}&nickname={nickname}";
-                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                var result = JsonConvert.DeserializeObject<_ResponceModel>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
 
@@ -150,7 +170,7 @@ namespace tty.interactive
             {
                 var postdata = $"method=changepw&username={UserData.username}&password={ToolUtil.MD5Encrypt32(password)}&newpassword={ToolUtil.MD5Encrypt32(newpassword)}";
 
-                var result = JsonConvert.DeserializeObject<ResponceModel>(
+                var result = JsonConvert.DeserializeObject<_ResponceModel>(
                     HttpUtil.post(API[APIKey.User], postdata)
                     );
 
@@ -179,7 +199,7 @@ namespace tty.interactive
         {
             try
             {
-                var postdata = $"credit={UserData.credit}&portrait={Convert.ToBase64String(ToolUtil.BitmapImageToBytes(portrait))}";
+                var postdata = $"credit={UserData.credit}&portrait={ToolUtil.BytesToHex(ToolUtil.BitmapImageToBytes(portrait))}";
 
                 var result = JsonConvert.DeserializeObject<ResponceModel<_E_Result>>(HttpUtil.post(API[APIKey.SetInfo], postdata));
 

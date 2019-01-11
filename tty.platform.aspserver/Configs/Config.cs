@@ -25,6 +25,8 @@ namespace tty.Configs
         internal static string ChatTable => "chattable";
         internal static string EncryptKey => "LAVERALSTARDANDMDS7024200345IEVS";
         internal static AesAddin Aes => new AesAddin(EncryptKey);
+
+        internal static string PortraitCache => AppDomain.CurrentDomain.BaseDirectory + @"\portrait";
         #region 默认用户头像
         internal static string defaultportrait = "default::unset";
         #endregion

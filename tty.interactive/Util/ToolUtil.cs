@@ -68,5 +68,30 @@ namespace tty.interactive.Util
             }
             return bmp;
         }
+
+        public static string BytesToHex(byte[] data)
+        {
+            StringBuilder ret = new StringBuilder();
+            foreach (byte b in data)
+            {
+                //{0:X2} 大写
+                ret.AppendFormat("{0:x2}", b);
+            }
+            var hex = ret.ToString();
+
+            return hex;
+        }
+
+        public static byte[] HexToByte(string hex)
+        {
+            var inputByteArray = new byte[hex.Length / 2];
+            for (var x = 0; x < inputByteArray.Length; x++)
+            {
+                var i = Convert.ToInt32(hex.Substring(x * 2, 2), 16);
+                inputByteArray[x] = (byte)i;
+            }
+
+            return inputByteArray;
+        }
     }
 }

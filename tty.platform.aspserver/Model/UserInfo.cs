@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using tty.Configs;
 using tty.Util;
@@ -96,9 +98,11 @@ namespace tty.Model
         //---------------这些是用户的基础信息---------------
 
         #region 图片太大，已经隐藏
-        [SqlElement]
-        [SqlBinding("portrait")]
+        //[SqlElement]
+        //[SqlBinding("portrait")]
         public byte[] portrait { get; set; }
+
+        private string portriaitFileName => Config.PortraitCache + $"\\{username}_128_128.jpg";
         #endregion
         [SqlElement]
         [SqlEncrypt]
@@ -121,6 +125,7 @@ namespace tty.Model
         [SqlElement]
         [SqlBinding("linkedcourse")]
         public string linkedcourse { get; set; } = "";
+        
 
         public List<string> Linkedcourse
         {
@@ -134,6 +139,24 @@ namespace tty.Model
         public void UpdateJh() => this.Update("jh");
         public void UpdateZfEdu() => this.Update("zfedu");
         public void UpdateLinkedCourse() => this.Update("linkedcourse");
+
+        public void ReadPortrait()
+        {
+           
+            if (File.Exists(portriaitFileName))
+            {
+                portrait = File.ReadAllBytes(portriaitFileName);
+            }
+        }
+        public void SavePortrait()
+        {
+            if (!Directory.Exists(Config.PortraitCache))
+            {
+                Directory.CreateDirectory(Config.PortraitCache);
+            }
+
+            File.WriteAllBytes(portriaitFileName, portrait);
+        }
     }
 
     public class PwBindInfo
@@ -283,7 +306,7 @@ namespace tty.Model
                 }
             }
         }
-        internal static ResponceModel SetInfoControl(string credit, string email, byte[] portrait, string phone)
+        internal static ResponceModel SetInfoControl(string credit, string email, string portrait, string phone)
         {
             if (credit == null)
             {
@@ -319,11 +342,12 @@ namespace tty.Model
                         try
                         {
                             UserInfoSql userInfo = new UserInfoSql(username);
-                            userInfo.portrait = portrait;
-                            userInfo.Update("portrait");
+                            userInfo.portrait = ToolUtil.HexToByte(portrait) ;
+                            userInfo.SavePortrait();
+
                             e_portrait = 2;
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
                             e_portrait = 1;
                         }
@@ -412,33 +436,64 @@ namespace tty.Model
             return pwBindInfo;
 
         }
-        private static ResponceModel GetBaseInfo(string username)
+        internal static bool TryGetUserInfo(string username, bool isshared, out dynamic data)
         {
             UserInfoSql userInfo = new UserInfoSql(username);
             UserCreditSql user = new UserCreditSql(username);
-            userInfo.TryQuery();
-            user.TryQuery();
 
-            string portrait = null;
-
-            if (userInfo.portrait == null)
+            if (user.TryQuery())
             {
-                portrait = Config.defaultportrait;
+                userInfo.TryQuery();
+                userInfo.ReadPortrait();
+
+
+                string portrait = null;
+
+                if (userInfo.portrait == null)
+                {
+                    portrait = Config.defaultportrait;
+                }
+                else
+                {
+                    portrait = ToolUtil.BytesToHex(userInfo.portrait);
+                }
+
+                if (!isshared)
+                {
+                    data = new //匿名类型
+                    {
+                        username = userInfo.username,
+                        nickname = user.nickname,
+                        usertype = user.usertype,
+                        portrait,
+                        email = userInfo.email,
+                        phone = userInfo.phone,
+                    };
+                }
+                else
+                {
+                    data = new //匿名类型
+                    {
+                        username = userInfo.username,
+                        nickname = user.nickname,
+                        usertype = user.usertype,
+                        portrait,
+                    };
+                }
+
+                return true;
             }
             else
             {
-                portrait = Convert.ToBase64String(userInfo.portrait);
+                data = null;
+                return false; 
             }
+        }
 
-            return new ResponceModel(200, "获取成功", new //匿名类型
-            {
-                username = userInfo.username,
-                nickname = user.nickname,
-                usertype = user.usertype,
-                portrait,
-                email = userInfo.email,
-                phone = userInfo.phone,
-            });
+        private static ResponceModel GetBaseInfo(string username)
+        {
+            TryGetUserInfo(username, false, out dynamic data);
+            return new ResponceModel(200, "获取成功",data);
         }
 
         /// <summary>

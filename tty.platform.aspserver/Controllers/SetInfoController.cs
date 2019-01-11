@@ -13,7 +13,7 @@ namespace tty.platform.aspserver.Controllers
     public class SetInfoController : Controller
     {
         [HttpGet]
-        public JsonResult Get(string credit, string email, byte[] portrait, string phone)
+        public JsonResult Get(string credit, string email, string portrait, string phone)
         {
 #if DEBUG
             return Post(credit,email,portrait,phone);
@@ -23,7 +23,7 @@ namespace tty.platform.aspserver.Controllers
         }
 
         [HttpPost]
-        public JsonResult Post(string credit,string email,byte[] portrait,string phone)
+        public JsonResult Post(string credit,string email,string portrait,string phone)
         {
             return UserInfo.SetInfoControl(credit,email,portrait,phone);
         }

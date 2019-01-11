@@ -39,44 +39,9 @@ namespace tty.Model
                 return ResponceModel.GetInstanceError(ex);
             }
         }
-        private static bool TryGetUserInfo(string username, out dynamic data)
-        {
-            UserCreditSql user = new UserCreditSql(username);
-            if (user.TryQuery())
-            {
-                string portrait = null;
-
-                UserInfoSql userInfo = new UserInfoSql(username);
-                if (userInfo.TryQuery())
-                {
-                    portrait = Convert.ToBase64String(userInfo.portrait);
-                }
-                else
-                {
-                    portrait = Config.defaultportrait;
-                }
-
-                var result = new
-                {
-                    username = user.username,
-                    user.nickname,
-                    user.usertype,
-                    portrait = portrait,
-                    premission_msgboard = userInfo.permission_msgboard
-                };
-
-                data = result;
-                return true;
-            }
-            else
-            {
-                data = null;
-                return false;
-            }
-        }
         internal static ResponceModel GetUserInfo(string query)
         {
-            if (TryGetUserInfo(query,out dynamic data))
+            if (UserInfo.TryGetUserInfo(query,true,out dynamic data))
             {
                 return new ResponceModel(200, "获取信息成功", data);
             }
@@ -87,7 +52,7 @@ namespace tty.Model
         }
         internal static ResponceModel GetUserMD5(string query)
         {
-            if (TryGetUserInfo(query, out dynamic data))
+            if (UserInfo.TryGetUserInfo(query, true, out dynamic data))
             {
                 string jsonstring = Newtonsoft.Json.JsonConvert.SerializeObject(data);
                 return new ResponceModel(200, "获取信息成功", ToolUtil.MD5Encrypt32(jsonstring) );

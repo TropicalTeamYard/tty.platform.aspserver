@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace tty.interactive.Model
 {
-    internal class UserCredit
+    internal class _UserCredit
     {
-        public UserCredit(string username, string nickname, string credit)
+        public _UserCredit(string username, string nickname, string credit)
         {
             this.username = username;
             this.nickname = nickname;

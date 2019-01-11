@@ -33,7 +33,7 @@ namespace tty.test.Pages
             //FrameUser.NavigateTo(typeof(UserPage));
             App.Current.InterAct.UserData.PropertyChanged += (a, b) => 
             {
-                if (b.PropertyName == "portrait")
+                if (b.PropertyName == "Portrait")
                 {
                     OnPortraitChanged();
                 }

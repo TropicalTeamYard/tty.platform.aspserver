@@ -47,13 +47,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Model\_E_Result.cs" />
+    <Compile Include="Model\_UserBaseInfo.cs" />
     <Compile Include="Util\CheckUtil.cs" />
     <Compile Include="Data\UserData.cs" />
     <Compile Include="Data\UserState.cs" />
     <Compile Include="InterAct.cs" />
     <Compile Include="Config\API.cs" />
-    <Compile Include="Model\ResponceModel.cs" />
-    <Compile Include="Model\UserCredit.cs" />
+    <Compile Include="Model\_ResponceModel.cs" />
+    <Compile Include="Model\_UserCredit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Util\HttpUtil.cs" />
     <Compile Include="Util\ToolUtil.cs" />

@@ -20,9 +20,9 @@ namespace tty.interactive.Model
 
     }
 
-    internal class ResponceModel : ResponceModel<object>
+    internal class _ResponceModel : ResponceModel<object>
     {
-        public ResponceModel(int code, string msg, object data = null) : base(code, msg, data)
+        public _ResponceModel(int code, string msg, object data = null) : base(code, msg, data)
         {
         }
     }

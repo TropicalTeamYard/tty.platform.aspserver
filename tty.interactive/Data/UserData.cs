@@ -22,6 +22,8 @@ namespace tty.interactive.Data
         private string _nickname = "";
         private UserState _userstate = UserState.NoLogin;
         private BitmapImage _portrait = null;
+        private string _email = "";
+        private string _phone = "";
 
         /// <summary>
         /// 用户名(可绑定)
@@ -52,6 +54,14 @@ namespace tty.interactive.Data
         /// 用户凭证
         /// </summary>
         public string credit { get; set; }
+        /// <summary>
+        /// 用户邮箱
+        /// </summary>
+        public string email { get; set; }
+        /// <summary>
+        /// 用户手机号码
+        /// </summary>
+        public string phone { get; set; }
         /// <summary>
         /// 用户状态(可绑定)
         /// </summary>
