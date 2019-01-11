@@ -504,7 +504,8 @@ namespace tty.Model
                 }
                 else
                 {
-                    return new ResponceModel(200, "自动登录已失效，请重新登录");
+                    // SOLVED BUG
+                    return new ResponceModel(403, "自动登录已失效，请重新登录");
                 }
             }
         }
