@@ -240,6 +240,30 @@ namespace tty.interactive
                 return false;
             }
         }
+        public void SendP()
+        {
+            try
+            {
+                var postdata = $"method=add&credit={UserData.credit}&content=helloword!";
+                var result = JsonConvert.DeserializeObject<_ResponceModel>(
+                    HttpUtil.post(API[APIKey.MsgBoard], postdata)
+                    );
+
+                if (result.code == 200)
+                {
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("msg", $"插入留言成功 {result.data.ToString()}"));
+                }
+                else
+                {
+                    MessageInvoked?.Invoke(this, new MessageEventArgs("msg", result.msg));
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageInvoked?.Invoke(this, new MessageEventArgs("msg", ex.Message));
+            }
+        }
+
 
         public void Load()
         {

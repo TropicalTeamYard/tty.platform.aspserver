@@ -127,5 +127,10 @@ namespace tty.test.Pages
 
             App.Current.InterAct.ChangePortrait(tempImage);
         }
+
+        private void GetMsg_Click(object sender, RoutedEventArgs e)
+        {
+            App.Current.InterAct.SendP();
+        }
     }
 }

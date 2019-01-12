@@ -25,7 +25,8 @@ namespace tty.interactive.Config
             { APIKey.Time,"api/time"},
             { APIKey.GetInfo,"api/getinfo"},
             { APIKey.Course,"api/course"},
-            { APIKey.SetInfo,"api/setinfo" }
+            { APIKey.SetInfo,"api/setinfo" },
+            { APIKey.MsgBoard,"api/msgboard"}
         };
 
         public string this[APIKey key]
@@ -39,6 +40,7 @@ namespace tty.interactive.Config
         Time,
         GetInfo,
         Course,
-        SetInfo
+        SetInfo,
+        MsgBoard
     }
 }

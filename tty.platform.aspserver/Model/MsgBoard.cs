@@ -57,7 +57,7 @@ namespace tty.Model
         [SqlElement]
         [SqlBinding("comments")]
         [JsonIgnore]
-        public int commentidlast { get; set; } = 0;
+        public int commentlastid { get; set; } = 0;
 
         [SqlElement("comments")]
         [SqlEncrypt]
@@ -229,7 +229,11 @@ namespace tty.Model
             {
                 var data = from item in SqlExtension.GetLastRecords<MsgUni>(200) where (item.GetUpdateTime() > result) select item;
 
-                return new ResponceModel(200, "获取留言成功",data.ToArray());
+                return new ResponceModel(200, "获取留言成功",new
+                {
+                    time = DateTime.Now.ToString(),
+                    content = data.ToArray()
+                });
             }
             else
             {
@@ -248,7 +252,7 @@ namespace tty.Model
                 if (msg.TryQuery())
                 {
                     var comments = msg.comments.ToList();
-                    comments.Add(new MsgComment(++msg.commentidlast, username, DateTime.Now.ToString(), content));
+                    comments.Add(new MsgComment(++msg.commentlastid, username, DateTime.Now.ToString(), content));
                     msg.comments = comments.ToArray();
                     msg.Update("comments");
 
