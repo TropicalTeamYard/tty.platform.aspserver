@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -41,26 +43,39 @@ namespace tty.Model
         }
         internal static ResponceModel GetUserInfo(string query)
         {
-            if (UserInfo.TryGetUserInfo(query,true,out dynamic data))
+            string[] users = JsonConvert.DeserializeObject<string[]>(query);
+
+            List<dynamic> re = new List<dynamic>();
+
+            foreach (var item in users)
             {
-                return new ResponceModel(200, "获取信息成功", data);
+                if (UserInfo.TryGetUserInfo(item, true, out dynamic data))
+                {
+                    re.Add(data);
+                }
             }
-            else
-            {
-                return new ResponceModel(403, "不存在该用户");
-            }
+
+            return new ResponceModel(200, "获取信息成功", re.ToArray());
         }
         internal static ResponceModel GetUserMD5(string query)
         {
-            if (UserInfo.TryGetUserInfo(query, true, out dynamic data))
+            string[] users = JsonConvert.DeserializeObject<string[]>(query);
+
+            List<dynamic> re = new List<dynamic>();
+
+            foreach (var item in users)
             {
-                string jsonstring = Newtonsoft.Json.JsonConvert.SerializeObject(data);
-                return new ResponceModel(200, "获取信息成功", ToolUtil.MD5Encrypt32(jsonstring) );
+                if (UserInfo.TryGetUserInfo(query, true, out dynamic data))
+                {
+                    string jsonstring = Newtonsoft.Json.JsonConvert.SerializeObject(data);
+                    re.Add(new
+                    {
+                        username=item,
+                        md5 = ToolUtil.MD5Encrypt32(jsonstring)
+                    });
+                }
             }
-            else
-            {
-                return new ResponceModel(403, "不存在该用户");
-            }
+            return new ResponceModel(200, "获取信息成功", re.ToArray());
         }
     }
 }

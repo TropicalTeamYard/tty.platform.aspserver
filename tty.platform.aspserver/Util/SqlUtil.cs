@@ -1,4 +1,5 @@
 ﻿using MySql.Data.MySqlClient;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -358,7 +359,7 @@ namespace tty.Util
     [AttributeUsage(AttributeTargets.Property, Inherited = true, AllowMultiple = false)]
     public sealed class SqlElementAttribute : Attribute
     {
-        public SqlElementAttribute(string name = null,bool isreadonly = false)
+        public SqlElementAttribute(string name = null, bool isreadonly = false)
         {
             Name = name;
             IsReadOnly = isreadonly;
@@ -405,14 +406,14 @@ namespace tty.Util
 
     public class NameValue
     {
-        public NameValue(string name, string value)
+        public NameValue(string name, object value)
         {
             Name = name;
             Value = value;
         }
 
         public string Name { get; }
-        public string Value { get; }
+        public object Value { get; }
     }
     public class NameValueList : IList<NameValue>
     {
@@ -463,7 +464,7 @@ namespace tty.Util
             return ((IList<NameValue>)vs).GetEnumerator();
         }
 
-        public void Add(string name, string value) => Add(new NameValue(name, value));
+        public void Add(string name, object value) => Add(new NameValue(name, value));
         public List<string> Names
         {
             get
@@ -476,11 +477,11 @@ namespace tty.Util
                 return ar;
             }
         }
-        public List<string> Values
+        public List<object> Values
         {
             get
             {
-                List<string> ar = new List<string>();
+                List<object> ar = new List<object>();
                 foreach (var item in vs)
                 {
                     ar.Add(item.Value);
@@ -505,9 +506,9 @@ namespace tty.Util
             NameValueList vs = new NameValueList();
             foreach (var property in obj.GetType().GetProperties())
             {
-                if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name,out bool isreadonly))
+                if (property.CanWrite && property.CanRead && property.TryGetSqlElementName(out string name, out bool isreadonly))
                 {
-                    if (property.GetValue(obj) !=null && !isreadonly)
+                    if (property.GetValue(obj) != null && !isreadonly)
                     {
                         //加密。
                         vs.Add(name, GetSqlValue(property.GetValue(obj), property.IsSqlEncrypt()));
@@ -517,7 +518,7 @@ namespace tty.Util
             //生成命令语句。
             //string cmd = $"insert into {obj.Table} set  {(string.Join(',', vs.Map((m) => $"{m.Name}={m.Value}")))}";
 
-            string cmd = $"insert into {obj.Table} ({ToolUtil.JoinString(',',vs.Names)}) values ({ToolUtil.JoinString(',',vs.Values)})";
+            string cmd = $"insert into {obj.Table} ({ToolUtil.JoinString(',', vs.Names)}) values ({ToolUtil.JoinString(',', vs.Values)})";
 
             obj.SqlProvider.Execute(cmd);
         }
@@ -716,7 +717,7 @@ namespace tty.Util
                 return $"where {name}={value}";
             }
         }
-        private static bool TryGetSqlElementName(this PropertyInfo obj, out string name,out bool isreadonly)
+        private static bool TryGetSqlElementName(this PropertyInfo obj, out string name, out bool isreadonly)
         {
             var attribute = obj.GetCustomAttribute<SqlElementAttribute>();
             //SOLVED BUG 曾导致程序因为没有SqlElement特性而崩溃。
@@ -785,7 +786,7 @@ namespace tty.Util
                     }
                     else
                     {
-                        if (row[name]!= DBNull.Value)
+                        if (row[name] != DBNull.Value)
                         {
                             property.SetValue(obj, row[name]);
                         }
@@ -811,7 +812,7 @@ namespace tty.Util
         /// <param name="obj">待处理的对象</param>
         /// <param name="isEncrypt">是否加密(仅限字符串类型)</param>
         /// <returns></returns>
-        private static string GetSqlValue(object obj, bool isEncrypt)
+        private static object GetSqlValue(object obj, bool isEncrypt)
         {
             if (obj is string str)
             {
@@ -826,14 +827,9 @@ namespace tty.Util
             }
             else
             {
-                if (obj == null)
-                {
-                    return null;
-                }
-                else
-                {
-                    return obj.ToString();
-                }
+
+                return obj;
+
             }
 
         }

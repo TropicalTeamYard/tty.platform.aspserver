@@ -439,6 +439,7 @@ namespace tty.Model
                         portrait,
                         email = userInfo.email,
                         phone = userInfo.phone,
+                        userInfo.permission_msgboard
                     };
                 }
                 else

@@ -27,7 +27,7 @@ namespace tty.Util
             }
             return stringBuilder.ToString();
         }
-        public static string JoinString(char seperator, IEnumerable<string> obj)
+        public static string JoinString(char seperator, IEnumerable<object> obj)
         {
             if (obj == null || obj.Count() == 0)
             {

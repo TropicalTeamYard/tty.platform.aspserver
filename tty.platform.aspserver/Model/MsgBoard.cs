@@ -49,7 +49,22 @@ namespace tty.Model
         public int islocked { get; set; } = 0;
         [SqlElement]
         [SqlEncrypt]
+        [SqlBinding("body")]
         public string content { get; set; } = "";
+
+        /// <summary>
+        /// 留言标记，0表示正常，2表示删除。
+        /// </summary>
+        [SqlElement]
+        [SqlBinding("mark")]
+        public int mark { get; set; }
+
+        [SqlElement]
+        [SqlBinding("comments")]
+        [SqlBinding("body")]
+        [SqlBinding("mark")]
+        [JsonIgnore]
+        public string updatetime { get; set; } = "1970-01-01 08:01:00";
 
         /// <summary>
         /// 仅用于表示评论最后的id.
@@ -65,7 +80,9 @@ namespace tty.Model
         [JsonIgnore]
         public string _comments { get; set; } = "";
 
-        [SqlElement]
+        // TODO 写入数据库
+        // [SqlElement]
+        // [SqlBinding("body")]
         public byte[] pic { get; set; }
         
         public MsgComment[] comments
@@ -93,22 +110,8 @@ namespace tty.Model
             set => _comments = JsonConvert.SerializeObject(value);
         }
 
-        public DateTime GetUpdateTime()
-        {
-            DateTime time = DateTime.Parse(this.time);
-            if (comments!=null)
-            {
-                foreach (var item in comments)
-                {
-                    DateTime time2 = DateTime.Parse(item.time);
-                    if (time2 > time)
-                    {
-                        time = time2;
-                    }
-                }
-            }
-            return time;
-        }
+        public DateTime GetUpdateTime() => DateTime.Parse(this.updatetime);
+        
 
     }
 
@@ -206,17 +209,14 @@ namespace tty.Model
             {
                 MsgUni msg = new MsgUni(username, content, pic)
                 {
-                    time = DateTime.Now.ToString()
+                    time = DateTime.Now.ToString(),
+                    updatetime = DateTime.Now.ToString(),
                 };
                 msg.Add();
 
                 msg = SqlExtension.GetLastRecord<MsgUni>();
 
-                return new ResponceModel(200, "添加成功", new
-                {
-                    time = DateTime.Now.ToString(),
-                    msg
-                });
+                return new ResponceModel(200, "添加成功",msg);
             }
             else
             {
@@ -254,7 +254,10 @@ namespace tty.Model
                     var comments = msg.comments.ToList();
                     comments.Add(new MsgComment(++msg.commentlastid, username, DateTime.Now.ToString(), content));
                     msg.comments = comments.ToArray();
+                    msg.updatetime = DateTime.Now.ToString();
+
                     msg.Update("comments");
+                    //msg.Update("updatetime");
 
                     return new ResponceModel(200, "添加评论成功", msg);
                 }
@@ -263,6 +266,95 @@ namespace tty.Model
                     return new ResponceModel(403, "该留言不存在");
                 }
 
+            }
+        }
+
+        public static ResponceModel Change(string username, int id, string content, byte[] pic)
+        {
+            if (content != "")
+            {
+                MsgUni msg = new MsgUni(id);
+                if (msg.TryQuery())
+                {
+                    if (content != "")
+                    {
+                        msg.content = content;
+                        msg.pic = pic;
+                        msg.Update("body");
+
+                        return new ResponceModel(200, "添加成功", msg);
+                    }
+                    else
+                    {
+                        return new ResponceModel(403, "留言内容为空");
+                    }
+                }
+                else
+                {
+                    return new ResponceModel(403, "该留言不存在");
+                }
+            }
+            else
+            {
+                return new ResponceModel(403, "留言内容为空");
+            }
+        }
+
+        public static ResponceModel Delete(string username, int id)
+        {
+            MsgUni msg = new MsgUni(id);
+            if (msg.TryQuery())
+            {
+                UserInfoSql userInfo = new UserInfoSql(username);
+                userInfo.TryQuery();
+                bool isdelete = false;
+                string remsg = "";
+                if (msg.username == username)
+                {
+                    isdelete = true;
+                    remsg = "删除留言成功";
+                    //return new ResponceModel(200, "删除留言成功");
+                }
+                // 糟糕，该用户具有管理员管理员权限
+                else if (userInfo.permission_msgboard > 0)
+                {
+                    // TODO 通知原用户已被删除。
+                    UserInfoSql userInfoowner = new UserInfoSql(msg.username);
+                    userInfoowner.TryQuery();
+
+                    // 这个要看谁是爸爸。
+                    if (userInfoowner.permission_msgboard < userInfo.permission_msgboard)
+                    {
+                        isdelete = true;
+                        remsg = "删除留言成功";
+
+                        //return new ResponceModel(200,"")
+                    }
+                    else
+                    {
+                        isdelete = false;
+                        remsg = "用户权限不够";
+                    }
+                }
+
+                if (isdelete)
+                {
+                    if (msg.mark == 0)
+                    {
+                        msg.mark = 2;
+                        msg.Update("mark");
+                    }
+
+                    return new ResponceModel(200, remsg);
+                }
+                else
+                {
+                    return new ResponceModel(403, remsg);
+                }
+            }
+            else
+            {
+                return new ResponceModel(403, "该留言不存在");
             }
         }
 
