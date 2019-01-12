@@ -65,7 +65,7 @@ namespace tty.Model
 
             foreach (var item in users)
             {
-                if (UserInfo.TryGetUserInfo(query, true, out dynamic data))
+                if (UserInfo.TryGetUserInfo(item, true, out dynamic data))
                 {
                     string jsonstring = Newtonsoft.Json.JsonConvert.SerializeObject(data);
                     re.Add(new

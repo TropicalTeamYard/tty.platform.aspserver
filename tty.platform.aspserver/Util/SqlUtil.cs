@@ -779,14 +779,15 @@ namespace tty.Util
             {
                 if (property.CanRead && property.CanWrite && property.TryGetSqlElementName(out string name))
                 {
-                    if (property.PropertyType == typeof(string))
+                    //SOLVED BUG DBNull的坑
+                    if (row[name] != DBNull.Value)
                     {
-                        bool isencrypt = property.IsSqlEncrypt();
-                        property.SetValue(obj, GetRowValue((string)row[name], isencrypt));
-                    }
-                    else
-                    {
-                        if (row[name] != DBNull.Value)
+                        if (property.PropertyType == typeof(string))
+                        {
+                            bool isencrypt = property.IsSqlEncrypt();
+                            property.SetValue(obj, GetRowValue((string)row[name], isencrypt));
+                        }
+                        else
                         {
                             property.SetValue(obj, row[name]);
                         }

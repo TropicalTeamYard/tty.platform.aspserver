@@ -268,7 +268,6 @@ namespace tty.Model
 
             }
         }
-
         public static ResponceModel Change(string username, int id, string content, byte[] pic)
         {
             if (content != "")
@@ -299,7 +298,6 @@ namespace tty.Model
                 return new ResponceModel(403, "留言内容为空");
             }
         }
-
         public static ResponceModel Delete(string username, int id)
         {
             MsgUni msg = new MsgUni(id);
@@ -357,7 +355,6 @@ namespace tty.Model
                 return new ResponceModel(403, "该留言不存在");
             }
         }
-
         private static int GetPriority(string username)
         {
             UserInfoSql userInfo = new UserInfoSql(username);
