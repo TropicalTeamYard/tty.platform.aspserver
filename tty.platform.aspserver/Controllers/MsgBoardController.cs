@@ -13,8 +13,9 @@ namespace tty.platform.aspserver.Controllers
     public class MsgBoardController : Controller
     {
         [HttpGet]
-        public JsonResult Get(string method,string credit,int? id,string time,string content,byte[] pic)
+        public JsonResult Get(string method,string credit,int? id,string time,string content,string pic)
         {
+
 #if DEBUG
             return Post(method,credit,id,time,content,pic);
 #else
@@ -22,7 +23,7 @@ namespace tty.platform.aspserver.Controllers
 #endif
         }
 
-        public JsonResult Post(string method, string credit,int? id, string time, string content, byte[] pic)
+        public JsonResult Post(string method, string credit,int? id, string time, string content,string pic)
         {
             if (credit == null)
             {

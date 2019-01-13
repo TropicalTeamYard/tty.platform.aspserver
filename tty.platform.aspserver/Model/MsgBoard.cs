@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using tty.Configs;
@@ -35,6 +36,7 @@ namespace tty.Model
         SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; // Config.MySqlProvider;
         [JsonIgnore]
         string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.MsgBoard];// Config.MsgBoardTable;
+        private string picFileName => App.Current.Configuration.MsgboardCache + $"\\{id}_content";
 
         [SqlElement(isreadonly: true)]
         [SqlSearchKey]
@@ -51,21 +53,18 @@ namespace tty.Model
         [SqlEncrypt]
         [SqlBinding("body")]
         public string content { get; set; } = "";
-
         /// <summary>
         /// 留言标记，0表示正常，2表示删除。
         /// </summary>
         [SqlElement]
         [SqlBinding("mark")]
         public int mark { get; set; }
-
         [SqlElement]
         [SqlBinding("comments")]
         [SqlBinding("body")]
         [SqlBinding("mark")]
         [JsonIgnore]
         public string updatetime { get; set; } = "1970-01-01 08:01:00";
-
         /// <summary>
         /// 仅用于表示评论最后的id.
         /// </summary>
@@ -73,18 +72,13 @@ namespace tty.Model
         [SqlBinding("comments")]
         [JsonIgnore]
         public int commentlastid { get; set; } = 0;
-
         [SqlElement("comments")]
         [SqlEncrypt]
         [SqlBinding("comments")]
         [JsonIgnore]
         public string _comments { get; set; } = "";
 
-        // TODO 写入数据库
-        // [SqlElement]
-        // [SqlBinding("body")]
         public byte[] pic { get; set; }
-        
         public MsgComment[] comments
         {
             get
@@ -109,10 +103,25 @@ namespace tty.Model
             }
             set => _comments = JsonConvert.SerializeObject(value);
         }
-
         public DateTime GetUpdateTime() => DateTime.Parse(this.updatetime);
-        
 
+        public void ReadPic()
+        {
+
+            if (File.Exists(picFileName))
+            {
+                pic = File.ReadAllBytes(picFileName);
+            }
+        }
+        public void SavePic()
+        {
+            if (!Directory.Exists(App.Current.Configuration.PortraitCache))
+            {
+                Directory.CreateDirectory(App.Current.Configuration.PortraitCache /*Config.PortraitCache*/);
+            }
+
+            File.WriteAllBytes(picFileName, pic);
+        }
     }
 
     public class MsgComment
@@ -137,7 +146,7 @@ namespace tty.Model
 
     public static class MsgBoard
     {
-        public static ResponceModel Control(string method, string credit,int? id, string time, string content, byte[] pic)
+        public static ResponceModel Control(string method, string credit, int? id, string time, string content, string pic)
         {
             try
             {
@@ -186,6 +195,17 @@ namespace tty.Model
                                 return AddComment(username, id.Value, content);
                             }
                         }
+                        else if (method == "delete")
+                        {
+                            if (id == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return Delete(username, id.Value);
+                            }
+                        }
                         else
                         {
                             return ResponceModel.GetInstanceInvalid();
@@ -203,11 +223,11 @@ namespace tty.Model
             }
         }
 
-        public static ResponceModel Add(string username, string content, byte[] pic)
+        public static ResponceModel Add(string username, string content, string pic)
         {
             if (content != "")
             {
-                MsgUni msg = new MsgUni(username, content, pic)
+                MsgUni msg = new MsgUni(username, content, ToolUtil.HexToByte(pic))
                 {
                     time = DateTime.Now.ToString(),
                     updatetime = DateTime.Now.ToString(),
@@ -216,7 +236,8 @@ namespace tty.Model
 
                 msg = SqlExtension.GetLastRecord<MsgUni>();
 
-                return new ResponceModel(200, "添加成功",msg);
+                msg.SavePic();
+                return new ResponceModel(200, "添加成功", msg);
             }
             else
             {
@@ -225,11 +246,18 @@ namespace tty.Model
         }
         public static ResponceModel Update(string time)
         {
-            if (DateTime.TryParse(time,out DateTime result))
+            if (DateTime.TryParse(time, out DateTime result))
             {
                 var data = from item in SqlExtension.GetLastRecords<MsgUni>(200) where (item.GetUpdateTime() > result) select item;
 
-                return new ResponceModel(200, "获取留言成功",new
+                // Mark: 因传输图片过于消耗流量，故特意将图片的获取分离开来。
+                //提取图片。
+                //foreach (var item in data)
+                //{
+                //    item.ReadPic();
+                //}
+
+                return new ResponceModel(200, "获取留言成功", new
                 {
                     time = DateTime.Now.ToString(),
                     content = data.ToArray()
@@ -268,25 +296,23 @@ namespace tty.Model
 
             }
         }
-        public static ResponceModel Change(string username, int id, string content, byte[] pic)
+        public static ResponceModel Change(string username, int id, string content, string pic)
         {
             if (content != "")
             {
                 MsgUni msg = new MsgUni(id);
                 if (msg.TryQuery())
                 {
-                    if (content != "")
+                    if (msg.mark == 2)
                     {
-                        msg.content = content;
-                        msg.pic = pic;
-                        msg.Update("body");
+                        return new ResponceModel(403, "该留言已删除");
+                    }
+                    msg.content = content;
+                    msg.pic = ToolUtil.HexToByte(pic);
+                    msg.Update("body");
+                    msg.SavePic();
 
-                        return new ResponceModel(200, "添加成功", msg);
-                    }
-                    else
-                    {
-                        return new ResponceModel(403, "留言内容为空");
-                    }
+                    return new ResponceModel(200, "修改留言成功", msg);
                 }
                 else
                 {
@@ -340,6 +366,7 @@ namespace tty.Model
                     if (msg.mark == 0)
                     {
                         msg.mark = 2;
+                        // Mark: 这同时也会更新时间。
                         msg.Update("mark");
                     }
 

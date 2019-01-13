@@ -62,5 +62,7 @@ namespace tty
         /// 用户头像缓存地址
         /// </summary>
         internal readonly string PortraitCache = AppDomain.CurrentDomain.BaseDirectory + @"\portrait";
+
+        internal readonly string MsgboardCache = AppDomain.CurrentDomain.BaseDirectory + @"\msgboard";
     }
 }

@@ -14,7 +14,7 @@ namespace tty.Controllers
         [HttpGet]
         public string Get()
         {
-            return "welcome to hello world";
+            return $"welcome to hello world";
         }
     }
 }

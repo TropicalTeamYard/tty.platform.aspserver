@@ -86,8 +86,8 @@ namespace tty.Model
             get => Enum.Parse<UserType>(usertype);
             set => usertype = value.ToString();
         }
-        SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; // Config.MySqlProvider;
-        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.UserCredit]; // Config.UserCreditTable;
+        SqlBaseProvider ISqlObject.SqlProvider => App.Current.Configuration.MySqlProvider; 
+        string ISqlObject.Table => App.Current.Configuration.TableMap[TableKey.UserCredit]; 
 
         public void UpdateUserType() => this.Update("usertype");
         public void UpdateNickName() => this.Update("nickname");
@@ -280,14 +280,16 @@ namespace tty.Model
             }
             else if (!CheckUtil.Password(password))
             {
-                return new ResponceModel(403, "密码太长或太短。");
+                return new ResponceModel(403, "密码需要经过加密");
             }
             else if (!CheckUtil.Nickname(nickname))
             {
-                return new ResponceModel(403, "昵称不符合命名规则，昵称长度应该在2~15位。");
+                return new ResponceModel(403, "昵称太长或太短");
             }
             UserCreditSql user = new UserCreditSql("10086", nickname, password, UserType.COMMON);
             UserCreditSql userlast = SqlExtension.GetLastRecord<UserCreditSql>();
+
+            #region 按用户名自增顺序生成id.
             long id = 10086;
             if (userlast != null)
             {
@@ -313,7 +315,8 @@ namespace tty.Model
             }
 
             user.username = id.ToString();
-            user.Add();
+            user.Add(); 
+            #endregion
 
             return new ResponceModel(200, "注册账户成功", new
             {
@@ -396,7 +399,8 @@ namespace tty.Model
                             }
                             else
                             {
-                                //TODO 暂不支持网页端的操作。
+                                // Mark: This branch could never be raised.
+                                // TODO 暂不支持网页端的操作。
                                 return null;
                             }
                         }
@@ -435,7 +439,7 @@ namespace tty.Model
                             //-----修改密码后，所有自动登录方式都会失效-----
                             user.mobile_credit = "";
                             user.pc_credit = "";
-                            user.web_credit = "";
+                            //user.web_credit = "";
                             user.UpdatePassword();
                             user.UpdateMobile();
                             user.UpdatePc();

@@ -166,7 +166,7 @@ namespace tty.Model
     public static class UserInfo
     {
         /// <summary>
-        /// 绑定控制，目前支持的为jh和zfedu.
+        /// 绑定控制，目前支持的为jh和zfedu. Source:<see cref="Controllers.BindController"/>
         /// </summary>
         /// <param name="credit"></param>
         /// <param name="bindname"></param>
@@ -347,6 +347,61 @@ namespace tty.Model
                 new string[] { "jh", "lib", "zfedu", "ycedu", "card" }.Map((m) => GetBindInfo(username, m))
                 );
         }
+        internal static bool TryGetUserInfo(string username, bool isshared, out dynamic data)
+        {
+            UserInfoSql userInfo = new UserInfoSql(username);
+            UserCreditSql user = new UserCreditSql(username);
+
+            if (user.TryQuery())
+            {
+                userInfo.TryQuery();
+                userInfo.ReadPortrait();
+
+
+                string portrait = null;
+
+                if (userInfo.portrait == null)
+                {
+                    portrait = App.Current.Configuration.DefaultPortrait;// Config.defaultportrait;
+                }
+                else
+                {
+                    portrait = ToolUtil.BytesToHex(userInfo.portrait);
+                }
+
+                if (!isshared)
+                {
+                    data = new //匿名类型
+                    {
+                        username = userInfo.username,
+                        nickname = user.nickname,
+                        usertype = user.usertype,
+                        portrait,
+                        email = userInfo.email,
+                        phone = userInfo.phone,
+                        userInfo.permission_msgboard
+                    };
+                }
+                else
+                {
+                    data = new //匿名类型
+                    {
+                        username = userInfo.username,
+                        nickname = user.nickname,
+                        usertype = user.usertype,
+                        portrait,
+                    };
+                }
+
+                return true;
+            }
+            else
+            {
+                data = null;
+                return false;
+            }
+        }
+
         /// <summary>
         /// 获取绑定信息
         /// </summary>
@@ -407,61 +462,6 @@ namespace tty.Model
             return pwBindInfo;
 
         }
-        internal static bool TryGetUserInfo(string username, bool isshared, out dynamic data)
-        {
-            UserInfoSql userInfo = new UserInfoSql(username);
-            UserCreditSql user = new UserCreditSql(username);
-
-            if (user.TryQuery())
-            {
-                userInfo.TryQuery();
-                userInfo.ReadPortrait();
-
-
-                string portrait = null;
-
-                if (userInfo.portrait == null)
-                {
-                    portrait = App.Current.Configuration.DefaultPortrait;// Config.defaultportrait;
-                }
-                else
-                {
-                    portrait = ToolUtil.BytesToHex(userInfo.portrait);
-                }
-
-                if (!isshared)
-                {
-                    data = new //匿名类型
-                    {
-                        username = userInfo.username,
-                        nickname = user.nickname,
-                        usertype = user.usertype,
-                        portrait,
-                        email = userInfo.email,
-                        phone = userInfo.phone,
-                        userInfo.permission_msgboard
-                    };
-                }
-                else
-                {
-                    data = new //匿名类型
-                    {
-                        username = userInfo.username,
-                        nickname = user.nickname,
-                        usertype = user.usertype,
-                        portrait,
-                    };
-                }
-
-                return true;
-            }
-            else
-            {
-                data = null;
-                return false; 
-            }
-        }
-
         private static ResponceModel GetBaseInfo(string username)
         {
             TryGetUserInfo(username, false, out dynamic data);

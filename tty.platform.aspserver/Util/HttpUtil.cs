@@ -57,7 +57,8 @@ namespace tty.Util
         {
             var request = (HttpWebRequest)WebRequest.Create(url);
 
-            var _postData = postdata;
+            //var _postData = postdata;
+            var _postData = System.Web.HttpUtility.UrlEncode(postdata, Encoding.GetEncoding("UTF-8"));
 
             var data = Encoding.ASCII.GetBytes(_postData);
 
