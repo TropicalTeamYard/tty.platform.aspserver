@@ -146,7 +146,7 @@ namespace tty.Model
 
     public static class MsgBoard
     {
-        public static ResponceModel Control(string method, string credit, int? id, string time, string content, string pic)
+        public static ResponceModel Control(string method, string credit, int? id, int? subid, string time, string content, string pic)
         {
             try
             {
@@ -195,6 +195,17 @@ namespace tty.Model
                                 return AddComment(username, id.Value, content);
                             }
                         }
+                        else if (method == "change")
+                        {
+                            if (id == null || content == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return Change(username, id.Value, content, pic);
+                            }
+                        }
                         else if (method == "delete")
                         {
                             if (id == null)
@@ -204,6 +215,17 @@ namespace tty.Model
                             else
                             {
                                 return Delete(username, id.Value);
+                            }
+                        }
+                        else if (method == "deletecomment")
+                        {
+                            if (id == null || subid == null)
+                            {
+                                return ResponceModel.GetInstanceInvalid();
+                            }
+                            else
+                            {
+                                return DeleteCommnet(username, (int)id, (int)subid);
                             }
                         }
                         else
@@ -251,11 +273,11 @@ namespace tty.Model
                 var data = from item in SqlExtension.GetLastRecords<MsgUni>(200) where (item.GetUpdateTime() > result) select item;
 
                 // Mark: 因传输图片过于消耗流量，故特意将图片的获取分离开来。
-                //提取图片。
-                //foreach (var item in data)
-                //{
-                //    item.ReadPic();
-                //}
+                // 提取图片。
+                foreach (var item in data)
+                {
+                    item.ReadPic();
+                }
 
                 return new ResponceModel(200, "获取留言成功", new
                 {
@@ -308,7 +330,8 @@ namespace tty.Model
                         return new ResponceModel(403, "该留言已删除");
                     }
                     msg.content = content;
-                    msg.pic = ToolUtil.HexToByte(pic);
+                    if (pic != null)
+                        msg.pic = ToolUtil.HexToByte(pic);
                     msg.Update("body");
                     msg.SavePic();
 
@@ -375,6 +398,77 @@ namespace tty.Model
                 else
                 {
                     return new ResponceModel(403, remsg);
+                }
+            }
+            else
+            {
+                return new ResponceModel(403, "该留言不存在");
+            }
+        }
+        public static ResponceModel DeleteCommnet(string username, int id, int subid)
+        {
+            MsgUni msg = new MsgUni(id);
+            if (msg.TryQuery())
+            {
+                UserInfoSql userInfo = new UserInfoSql(username);
+                userInfo.TryQuery();
+
+                // Mark: 找到该评论，并删除。
+                var comments = from item in msg.comments where item.id == subid select item;
+
+                if (comments == null || comments.Count() == 0)
+                {
+                    return new ResponceModel(403, "该评论不存在");
+                }
+                else
+                {
+                    // Mark: 获取该评论
+                    var comment = comments.First();
+
+                    bool isdelete = false;
+                    string remsg = "";
+                    if (comment.username == username)
+                    {
+                        isdelete = true;
+                        remsg = "删除评论成功";
+                        //return new ResponceModel(200, "删除留言成功");
+                    }
+                    // 糟糕，该用户具有管理员管理员权限
+                    else if (userInfo.permission_msgboard > 0)
+                    {
+                        // TODO 通知原用户已被删除。
+                        UserInfoSql userInfoowner = new UserInfoSql(comment.username);
+                        userInfoowner.TryQuery();
+
+                        // 这个要看谁是爸爸。评论发布者和尝试删除者进行PK。
+                        if (userInfoowner.permission_msgboard < userInfo.permission_msgboard)
+                        {
+                            isdelete = true;
+                            remsg = "删除评论成功";
+
+                            //return new ResponceModel(200,"")
+                        }
+                        else
+                        {
+                            isdelete = false;
+                            remsg = "用户权限不够";
+                        }
+                    }
+
+                    if (isdelete)
+                    {
+                        var newcomments = msg.comments.Except(comments);
+                        msg.comments = newcomments.ToArray();
+                        msg.updatetime = DateTime.Now.ToString();
+
+                        msg.Update("comments");
+
+                        return new ResponceModel(200, "删除评论成功", msg);
+                    }
+                    else
+                    {
+                        return new ResponceModel(403, remsg);
+                    }
                 }
             }
             else
