@@ -383,6 +383,12 @@ namespace tty.Model
                         remsg = "用户权限不够";
                     }
                 }
+                // SOLVED BUG 这里曾导致了普通用户没有反馈的问题。
+                else
+                {
+                    isdelete = false;
+                    remsg = "用户权限不够";
+                }
 
                 if (isdelete)
                 {
