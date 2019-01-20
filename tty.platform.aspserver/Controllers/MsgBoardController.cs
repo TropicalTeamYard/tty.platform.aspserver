@@ -15,7 +15,6 @@ namespace tty.platform.aspserver.Controllers
         [HttpGet]
         public JsonResult Get(string method,string credit,int? id,int? subid,string time,string content,string pic)
         {
-
 #if DEBUG
             return Post(method,credit,id,subid,time,content,pic);
 #else

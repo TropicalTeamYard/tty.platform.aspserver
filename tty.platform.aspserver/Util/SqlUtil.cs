@@ -123,6 +123,7 @@ namespace tty.Util
             {
                 ConnectionString = Config.Conn
             };
+
             if (conn.State == ConnectionState.Closed)
             {
                 conn.Open();
@@ -296,7 +297,14 @@ namespace tty.Util
                 Conn.Open();
             }
         }
-        protected override void Close() => Conn.Close();
+        //SOLVED BUG
+        protected override void Close()
+        {
+            if (Conn.State == ConnectionState.Open)
+            {
+                Conn.Close();
+            }
+        }
         public override void Execute(string command)
         {
             try
