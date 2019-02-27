@@ -337,7 +337,7 @@ namespace tty.Util
             }
             catch (Exception)
             {
-                throw;
+               throw;
             }
             finally
             {

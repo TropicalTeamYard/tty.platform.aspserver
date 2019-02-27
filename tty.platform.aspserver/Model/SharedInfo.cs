@@ -31,6 +31,14 @@ namespace tty.Model
                 {
                     return GetUserMD5(query);
                 }
+                else if (type == "termtime")
+                {
+                    return GetTermTime(query);
+                }
+                else if (type == "schedult")
+                {
+                    return GetSchedule(query);
+                }
                 else
                 {
                     return ResponceModel.GetInstanceInvalid();
@@ -76,6 +84,43 @@ namespace tty.Model
                 }
             }
             return new ResponceModel(200, "获取信息成功", re.ToArray());
+        }
+        internal static ResponceModel GetTermTime(string query)
+        {
+            if (query == null || query == "")
+            {
+                return ResponceModel.GetInstanceInvalid();
+            }
+            else
+            {
+                foreach (var item in App.Current.Configuration.GetTimeConfig())
+                {
+                    if (item.provider==query)
+                    {
+                        return new ResponceModel(200, "获取信息成功", item.config);
+                    }
+                }
+                return new ResponceModel(403,"未找到该提供商的学期信息");
+            }
+        }
+        internal static ResponceModel GetSchedule(string query)
+        {
+            if (query == null || query == "")
+            {
+                return ResponceModel.GetInstanceInvalid();
+            }
+            else
+            {
+                foreach (var item in App.Current.Configuration.GetScheduleConfig())
+                {
+                    if (item.provider == query)
+                    {
+                        return new ResponceModel(200, "获取信息成功", item.config);
+                    }
+                }
+                return new ResponceModel(403, "未找到该提供商的时间安排信息");
+            }
+
         }
     }
 }

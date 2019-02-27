@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using tty.Configs;
 using tty.Model;
@@ -27,11 +28,19 @@ namespace tty
 
         private IConfiguration _configuration;
         private string userconfigpath = AppDomain.CurrentDomain.BaseDirectory + @"\userconfig.json";
-        private TermTimeUni[] GetTimeConfig()
+        public TermTimeConfig[] GetTimeConfig()
         {
-            JObject jObject = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(userconfigpath));
-            TermTimeUni[] terms = jObject["TermTime"].ToObject<TermTimeUni[]>();
+            JObject jObject = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(userconfigpath,Encoding.UTF8));
+            TermTimeConfig[] terms = jObject["timeconfig"].ToObject<TermTimeConfig[]>();
+
             return terms;
+        }
+        public ScheduleConfig[] GetScheduleConfig()
+        {
+            JObject jObject = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(userconfigpath, Encoding.UTF8));
+            ScheduleConfig[] schedules = jObject["schedule"].ToObject<ScheduleConfig[]>();
+
+            return schedules;
         }
 
         /// <summary>
@@ -53,7 +62,7 @@ namespace tty
         /// <summary>
         /// 学期时间设置
         /// </summary>
-        internal TermTimeUni[] TermTimeUnis { get=> GetTimeConfig(); }
+        //internal TermTimeUni[] TermTimeUnis { get=> GetTimeConfig(); }
         /// <summary>
         /// 默认头像
         /// </summary>

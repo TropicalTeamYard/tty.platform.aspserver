@@ -249,7 +249,15 @@ namespace tty.Model
         {
             if (content != "")
             {
-                MsgUni msg = new MsgUni(username, content, ToolUtil.HexToByte(pic))
+                //SOLVED BUG ??
+                byte[] data = null;
+
+                if (pic != null)
+                {
+                    data = ToolUtil.HexToByte(pic);
+                }
+
+                MsgUni msg = new MsgUni(username, content, data)
                 {
                     time = DateTime.Now.ToString(),
                     updatetime = DateTime.Now.ToString(),
@@ -258,7 +266,10 @@ namespace tty.Model
 
                 msg = SqlExtension.GetLastRecord<MsgUni>();
 
-                msg.SavePic();
+                if (data != null)
+                {
+                    msg.SavePic();
+                }
                 return new ResponceModel(200, "添加成功", msg);
             }
             else
@@ -396,6 +407,8 @@ namespace tty.Model
                     {
                         msg.mark = 2;
                         // Mark: 这同时也会更新时间。
+                        //SOLVED BUG 更新时间戳标记。
+                        msg.updatetime = DateTime.Now.ToString();
                         msg.Update("mark");
                     }
 

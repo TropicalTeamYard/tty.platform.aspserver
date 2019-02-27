@@ -385,15 +385,20 @@ namespace tty.Model
                     {
                         if (user.password == password)
                         {
+                            Random random = new Random();
+                            //MARK 添加Token标识.
+                            Token token = new Token() { Username = user.username, Password = user.password, Time = DateTime.Now, DeviceType = devicetype, OpenId = random.Next() };
                             if (devicetype == "mobile")
                             {
-                                user.mobile_credit = ToolUtil.GetNewToken();
+                                //user.mobile_credit = ToolUtil.GetNewToken();
+                                user.mobile_credit = token.ToString();
                                 user.UpdateMobile();
                                 return new ResponceModel(200, "登录成功", user.ToUserResultMobile());
                             }
                             else if (devicetype == "pc")
                             {
-                                user.pc_credit = ToolUtil.GetNewToken();
+                                //user.pc_credit = ToolUtil.GetNewToken();
+                                user.pc_credit = token.ToString();
                                 user.UpdatePc();
                                 return new ResponceModel(200, "登录成功", user.ToUserResultPc());
                             }
@@ -488,28 +493,45 @@ namespace tty.Model
             }
             else
             {
-                UserCreditSql user = new UserCreditSql();
-                if (user.TryQuery(credit, out string devicetype))
+                //MARK 添加Token标识
+                Token token = Token.Decrypt(credit);
+                UserCreditSql user = new UserCreditSql(token.Username);
+                if (user.TryQuery())
                 {
-                    if (devicetype == "mobile")
+                    if (token.DeviceType == "mobile")
                     {
-                        user.mobile_credit = ToolUtil.GetNewToken();
-                        user.UpdateMobile();
-
-                        return new ResponceModel(200, "自动登录成功", user.ToUserResultMobile());
+                        Token rtoken = Token.Decrypt(user.mobile_credit);
+                        if (token.OpenId == rtoken.OpenId && DateTime.Now - rtoken.Time > TimeSpan.FromDays(7))
+                        {
+                            return new ResponceModel(403, "自动登录已失效");
+                        }
+                        else
+                        {
+                            token.Time = DateTime.Now;
+                            user.mobile_credit = token.ToString();
+                            user.UpdateMobile();
+                            return new ResponceModel(200, "自动登录成功", user.ToUserResultMobile());
+                        }
                     }
                     else
                     {
-                        user.pc_credit = ToolUtil.GetNewToken();
-                        user.UpdatePc();
-
-                        return new ResponceModel(200, "自动登录成功", user.ToUserResultPc());
+                        Token rtoken = Token.Decrypt(user.pc_credit);
+                        if (token.OpenId == rtoken.OpenId && DateTime.Now - rtoken.Time > TimeSpan.FromDays(7))
+                        {
+                            return new ResponceModel(403, "自动登录已失效");
+                        }
+                        else
+                        {
+                            token.Time = DateTime.Now;
+                            user.pc_credit = token.ToString();
+                            user.UpdatePc();
+                            return new ResponceModel(200, "自动登录成功", user.ToUserResultPc());
+                        }
                     }
                 }
                 else
                 {
-                    // SOLVED BUG
-                    return new ResponceModel(403, "自动登录已失效，请重新登录");
+                    return new ResponceModel(403, "自动登录已失效");
                 }
             }
         }
@@ -543,5 +565,6 @@ namespace tty.Model
 
             }
         }
+
     }
 }

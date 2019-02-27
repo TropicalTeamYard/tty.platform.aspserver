@@ -91,7 +91,11 @@ namespace tty.Model
         /// </summary>
         [SqlElement]
         public int permission_msgboard { get; set; } = 0;
-
+        /// <summary>
+        /// 课表服务,'LOCAL':本地服务(自定义),'ZJUT':浙江工业大学课表服务.
+        /// </summary>
+        [SqlElement]
+        public string courseserver { get; set; } = "NONE";
         //-------------------------------------------------
         [SqlElement]
         [SqlBinding("linkedcourse")]

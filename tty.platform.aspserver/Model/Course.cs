@@ -37,17 +37,21 @@ namespace tty.Model
             courseid = ToolUtil.MD5Encrypt32($"{year}*{term}*{name}*{location}*{weekrange}*{dayofweek}*{timerange}");
         }
 
-        [JsonIgnore][SqlElement]
+        [JsonIgnore]
+        [SqlElement]
         public int id { get; set; }
         //课程的唯一标识符，主要用于查询。
-        [JsonIgnore][SqlElement]
+        [JsonIgnore]
+        [SqlElement]
         public string courseid { get; set; }
-        [JsonIgnore][SqlElement]
+        [JsonIgnore]
+        [SqlElement]
         public int year { get; set; }
         /// <summary>
         /// 3表示上学期，12表示下学期，16表示短学期。
         /// </summary>
-        [JsonIgnore][SqlElement]
+        [JsonIgnore]
+        [SqlElement]
         public int term { get; set; }
         [SqlElement]
         public string name { get; set; }
@@ -126,6 +130,9 @@ namespace tty.Model
         public int classhuor { get; set; }
     }
 
+
+
+
     /// <summary>
     /// <see cref="CourseUni"/>业务逻辑。
     /// </summary>
@@ -181,32 +188,33 @@ namespace tty.Model
                     UserInfoSql userInfo = new UserInfoSql(username);
                     if (userInfo.TryQuery())
                     {
-                        if (UserInfo.GetBindInfo(username,"jh").state != 0)
+                        if (UserInfo.GetBindInfo(username, "jh").state != 0)
                         {
                             //说明你绑定过正方账号。
-                            if (UserInfo.GetBindInfo(username,"zfedu").state != 0)
+                            if (UserInfo.GetBindInfo(username, "zfedu").state != 0)
                             {
-                                if (JhUser.CheckUser(userInfo.jhpid,userInfo.pwbind_jh).code == 200)
+                                if (JhUser.CheckUser(userInfo.jhpid, userInfo.pwbind_jh).code == 200)
                                 {
-                                    TermTimeUni time = TermTime.Get();
-                                    var result = GetZfCourse(userInfo.jhpid, userInfo.pwbind_zfedu, time.year, time.term);
+                                    //TermTimeUni time = TermTime.Get();
+                                    //TermTimeUni time = new TermTimeUni(2019,3,)
+                                    var result = GetZfCourse(userInfo.jhpid, userInfo.pwbind_zfedu, /*time.year*/2018, /*time.term*/12);
                                     if (result.code == 200)
                                     {
                                         var data = (List<CourseUni>)result.data;
 
-                                        if (data.Count > 0)
-                                        {
-                                            foreach (var item in data)
-                                            {
-                                                //在这里我们假设课表信息从不改变，虽然说绝大多数情况下是这样。
-                                                if (!item.Exists())
-                                                {
-                                                    item.Add();
-                                                }
-                                                userInfo.Linkedcourse = data.Map((m) => m.courseid).ToList();
-                                                userInfo.UpdateLinkedCourse();
-                                            }
-                                        }
+                                        //if (data.Count > 0)
+                                        //{
+                                        //    foreach (var item in data)
+                                        //    {
+                                        //        //在这里我们假设课表信息从不改变，虽然说绝大多数情况下是这样。
+                                        //        if (!item.Exists())
+                                        //        {
+                                        //            item.Add();
+                                        //        }
+                                        //        userInfo.Linkedcourse = data.Map((m) => m.courseid).ToList();
+                                        //        userInfo.UpdateLinkedCourse();
+                                        //    }
+                                        //}
 
                                         return new ResponceModel(200, "获取课表成功", data);
 
@@ -214,7 +222,7 @@ namespace tty.Model
                                     else
                                     {
                                         return new ResponceModel(403, "请重新绑定正方");
-                                    } 
+                                    }
                                 }
                                 else
                                 {
@@ -225,7 +233,7 @@ namespace tty.Model
                             {
                                 //SOLVED BUG 这里曾导致未绑定账号但任然显示重新绑定的错误提示信息。
                                 return new ResponceModel(403, "你还没有绑定正方");
-                            } 
+                            }
                         }
                         else
                         {
@@ -247,6 +255,41 @@ namespace tty.Model
                 return ResponceModel.GetInstanceError(ex);
             }
         }
-    }
 
+
+        internal static ResponceModel GetTermTime(string credit)
+        {
+            if (UserCredit.CheckUser(credit, out string username))
+            {
+                UserInfoSql userInfo = new UserInfoSql(username);
+                if (userInfo.TryQuery())
+                {
+                    var server = userInfo.courseserver;
+                    if (server == null || server == "" || server == "NONE")
+                    {
+                    }
+                    else if (server == "LOCAL")
+                    {
+                        return new ResponceModel(500, "该功能正在开发中");
+                    }
+                    else
+                    {
+                        var configs = App.Current.Configuration.GetTimeConfig();
+                        foreach (var item in configs)
+                        {
+                            if (item.provider == server)
+                            {
+                                return new ResponceModel(200, "获取时间成功", item.config);
+                            }
+                        }
+                    }
+                }
+                return new ResponceModel(403, "需要先绑定账号或者启用本地服务");
+            }
+            else
+            {
+                return new ResponceModel(403, "自动登录已失效");
+            }
+        }
+    }
 }

@@ -14,9 +14,9 @@ namespace tty.Controllers
     {
         [HttpGet]
         [Route("api/time")]
-        public JsonResult Get()
+        public JsonResult Get(string provider)
         {
-            return TermTime.GetResponce();
+            return TermTime.GetResponce(provider);
         }
     }
 }
