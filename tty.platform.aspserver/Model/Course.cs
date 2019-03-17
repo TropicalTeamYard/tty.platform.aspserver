@@ -34,7 +34,7 @@ namespace tty.Model
             classscore = data.classscore;
             classhour = data.classhuor;
 
-            courseid = ToolUtil.MD5Encrypt32($"{year}*{term}*{name}*{location}*{weekrange}*{dayofweek}*{timerange}");
+            courseid = $"{year}-{term};{name}:{teacher};{data.classinfo}";
         }
 
         [JsonIgnore]
@@ -43,6 +43,7 @@ namespace tty.Model
         //课程的唯一标识符，主要用于查询。
         [JsonIgnore]
         [SqlElement]
+        [SqlSearchKey]
         public string courseid { get; set; }
         [JsonIgnore]
         [SqlElement]
@@ -128,9 +129,8 @@ namespace tty.Model
         /// 学时，但是<see cref="classhuor"/>拼错了
         /// </summary>
         public int classhuor { get; set; }
+        public string classinfo { get; set; }
     }
-
-
 
 
     /// <summary>
@@ -179,7 +179,7 @@ namespace tty.Model
         /// </summary>
         /// <param name="credit"></param>
         /// <returns></returns>
-        internal static ResponceModel GetCourse(string credit)
+        internal static ResponceModel GetCourse(string credit, int year, int term)
         {
             try
             {
@@ -188,6 +188,8 @@ namespace tty.Model
                     UserInfoSql userInfo = new UserInfoSql(username);
                     if (userInfo.TryQuery())
                     {
+                        //if (userInfo.courseserver == "ZJUT")
+                        //{
                         if (UserInfo.GetBindInfo(username, "jh").state != 0)
                         {
                             //说明你绑定过正方账号。
@@ -197,10 +199,25 @@ namespace tty.Model
                                 {
                                     //TermTimeUni time = TermTime.Get();
                                     //TermTimeUni time = new TermTimeUni(2019,3,)
-                                    var result = GetZfCourse(userInfo.jhpid, userInfo.pwbind_zfedu, /*time.year*/2018, /*time.term*/12);
+                                    var result = GetZfCourse(userInfo.jhpid, userInfo.pwbind_zfedu, year, term);
                                     if (result.code == 200)
                                     {
                                         var data = (List<CourseUni>)result.data;
+
+                                        if (data.Count > 0)
+                                        {
+                                            foreach (var item in data)
+                                            {
+                                                if (!item.Exists())
+                                                {
+                                                    item.Add();
+                                                }
+                                                userInfo.Linkedcourse = data.Map((m) => m.courseid);
+
+                                                userInfo.UpdateLinkedCourse();
+                                            }
+                                        }
+
 
                                         //if (data.Count > 0)
                                         //{
@@ -239,6 +256,13 @@ namespace tty.Model
                         {
                             return new ResponceModel(403, "请重新绑定精弘账号");
                         }
+                        //}
+                        //else
+                        //{
+                        //    return new ResponceModel(500, "暂不支持这个提供商");
+                        //}
+
+
                     }
                     else
                     {

@@ -15,16 +15,16 @@ namespace tty.Controllers
     public class CourseController : Controller
     {
         [HttpGet]
-        public JsonResult Get(string credit)
+        public JsonResult Get(string credit,int year,int term)
         {
 #if DEBUG
-            return Post(credit);
+            return Post(credit,year,term);
 #else
             return ResponceModel.GetInstanceBaned();
 #endif
         }
 
-        public JsonResult Post(string credit)
+        public JsonResult Post(string credit,int year,int term)
         {
             if (credit == null)
             {
@@ -32,7 +32,7 @@ namespace tty.Controllers
             }
             else
             {
-                return Course.GetCourse(credit);
+                return Course.GetCourse(credit,year,term);
             }
         }
 

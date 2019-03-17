@@ -26,6 +26,7 @@ namespace tty
         public override string ToString()
         {
             return Util.ToolUtil.BytesToHex(Encoding.UTF8.GetBytes(aesAddin.Encrypt(JsonConvert.SerializeObject(this))));
+            
         }
 
         public string Username { get; set; }

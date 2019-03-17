@@ -35,7 +35,7 @@ namespace tty.Model
                 {
                     return GetTermTime(query);
                 }
-                else if (type == "schedult")
+                else if (type == "schedule")
                 {
                     return GetSchedule(query);
                 }

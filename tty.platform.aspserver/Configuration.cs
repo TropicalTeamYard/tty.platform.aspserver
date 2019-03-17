@@ -38,7 +38,7 @@ namespace tty
         public ScheduleConfig[] GetScheduleConfig()
         {
             JObject jObject = (JObject)JsonConvert.DeserializeObject(File.ReadAllText(userconfigpath, Encoding.UTF8));
-            ScheduleConfig[] schedules = jObject["schedule"].ToObject<ScheduleConfig[]>();
+            ScheduleConfig[] schedules = jObject["scheduleconfig"].ToObject<ScheduleConfig[]>();
 
             return schedules;
         }
